@@ -110,6 +110,35 @@ export default function Home() {
 
       <main className="mx-auto max-w-7xl px-6 py-12 space-y-20">
 
+        {/* ── App Launcher ───────────────────────────────────────────────────── */}
+        <section className="space-y-3">
+          <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">Apps</h2>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <Link
+              href="/gopato"
+              className="group flex items-center gap-4 rounded-xl border border-border-default bg-bg-surface p-4 hover:border-interactive-primary hover:shadow-md transition-all duration-200"
+            >
+              <span className="text-3xl">🥔</span>
+              <div>
+                <p className="font-semibold text-text-primary group-hover:text-interactive-primary transition-colors">GoPato</p>
+                <p className="text-xs text-text-muted">Mobile app prototype</p>
+              </div>
+              <ArrowRight className="ml-auto h-4 w-4 text-text-muted group-hover:text-interactive-primary transition-colors" />
+            </Link>
+            <Link
+              href="/design-system"
+              className="group flex items-center gap-4 rounded-xl border border-border-default bg-bg-surface p-4 hover:border-interactive-primary hover:shadow-md transition-all duration-200"
+            >
+              <span className="text-3xl">🎨</span>
+              <div>
+                <p className="font-semibold text-text-primary group-hover:text-interactive-primary transition-colors">Design System</p>
+                <p className="text-xs text-text-muted">Tokens, components & docs</p>
+              </div>
+              <ArrowRight className="ml-auto h-4 w-4 text-text-muted group-hover:text-interactive-primary transition-colors" />
+            </Link>
+          </div>
+        </section>
+
         {/* ── Hero ───────────────────────────────────────────────────────────── */}
         <section className="space-y-4 text-center">
           <h1 className="text-4xl font-bold tracking-tight text-text-primary sm:text-5xl">
