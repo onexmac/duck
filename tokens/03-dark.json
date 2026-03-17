@@ -29,10 +29,10 @@
     },
 
     "interactive": {
-      "primary":          { "$type": "color", "$value": "{color.blue.500}" },
-      "primary-hover":    { "$type": "color", "$value": "{color.blue.400}" },
-      "primary-active":   { "$type": "color", "$value": "{color.blue.300}" },
-      "primary-text":     { "$type": "color", "$value": "{color.white}" },
+      "primary":          { "$type": "color", "$value": "{color.duck.yellow}" },
+      "primary-hover":    { "$type": "color", "$value": "{color.duck.yellow-hover}" },
+      "primary-active":   { "$type": "color", "$value": "{color.duck.yellow-active}" },
+      "primary-text":     { "$type": "color", "$value": "{color.duck.dark}" },
       "secondary":        { "$type": "color", "$value": "{color.neutral.800}" },
       "secondary-hover":  { "$type": "color", "$value": "{color.neutral.700}" },
       "secondary-active": { "$type": "color", "$value": "{color.neutral.600}" },

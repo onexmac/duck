@@ -12,6 +12,7 @@ import { SwatchGroup } from "@/components/TokenSwatch";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import Link from "next/link";
 import { ArrowRight, Layers, Palette, Zap, Move } from "lucide-react";
 
 // ─── Token colour swatches data ───────────────────────────────────────────────
@@ -93,7 +94,13 @@ export default function Home() {
             <Badge variant="info">v0.1</Badge>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="hidden sm:flex font-mono text-xs">
+            <Link href="/design-system" className="hidden sm:block text-sm font-medium text-text-link hover:text-text-primary transition-colors">
+              Design System
+            </Link>
+            <Link href="/gopato" className="hidden sm:block text-sm font-medium text-text-muted hover:text-text-primary transition-colors">
+              GoPato
+            </Link>
+            <Badge variant="outline" className="hidden md:flex font-mono text-xs">
               build:tokens ✓
             </Badge>
             <ThemeToggle />
@@ -114,11 +121,15 @@ export default function Home() {
             drag-and-drop powered by dnd-kit.
           </p>
           <div className="flex flex-wrap justify-center gap-3 pt-2">
-            <Button>
-              Get started <ArrowRight className="h-4 w-4" />
+            <Button asChild>
+              <Link href="/design-system">
+                Design System <ArrowRight className="h-4 w-4" />
+              </Link>
             </Button>
-            <Button variant="outline">View tokens</Button>
-            <Button variant="secondary">Browse components</Button>
+            <Button variant="outline" asChild>
+              <Link href="/gopato">GoPato Prototype</Link>
+            </Button>
+            <Button variant="secondary">View tokens</Button>
           </div>
         </section>
 
