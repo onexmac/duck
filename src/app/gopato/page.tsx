@@ -3,12 +3,14 @@
  * GoPato Home — prototype built from Figma Duck System (node 7486:6775)
  * via Figma MCP → get_design_context + get_screenshot
  *
- * 5 states faithful to the Figma canvas:
+ * 7 states faithful to the Figma canvas:
  *  1. empty       — no subscription
  *  2. sunday      — no services today
- *  3. appointment — Limpieza pro card
+ *  3. appointment — unconfirmed card (with Confirm btn)
  *  4. missed      — missing a visit
  *  5. extra       — extra slot available
+ *  6. confirmed   — card confirmed (no Confirm btn)
+ *  7. rate        — confirmed + Rate previous visit pill
  */
 
 import { useState } from "react";
@@ -20,16 +22,26 @@ import { ServiceList } from "@/components/gopato/ServiceList";
 import { BottomNav } from "@/components/gopato/BottomNav";
 import { transition } from "@/lib/motion-tokens";
 
-// State → calendar active date mapping (matches Figma)
+// State → calendar active date + tab label mapping (matches Figma)
 const STATE_CONFIG: Record<GoPatoState, { date: number; label: string }> = {
   empty:       { date: 15, label: "No plan" },
   sunday:      { date: 10, label: "Sunday" },
   appointment: { date: 13, label: "Appointment" },
   missed:      { date: 13, label: "Missed visit" },
   extra:       { date: 14, label: "Extra slot" },
+  confirmed:   { date: 11, label: "Confirmed" },
+  rate:        { date: 11, label: "Rate visit" },
 };
 
-const STATES: GoPatoState[] = ["empty", "sunday", "appointment", "missed", "extra"];
+const STATES: GoPatoState[] = [
+  "empty",
+  "sunday",
+  "appointment",
+  "missed",
+  "extra",
+  "confirmed",
+  "rate",
+];
 
 export default function GoPatoPage() {
   const [appState, setAppState] = useState<GoPatoState>("appointment");
@@ -37,7 +49,6 @@ export default function GoPatoPage() {
   const { date } = STATE_CONFIG[appState];
 
   return (
-    // Outer: full page with dark background showing a centered phone
     <div
       className="min-h-screen flex flex-col items-center justify-start py-8 px-4 gap-6"
       style={{ background: "#1a1a2e" }}
@@ -111,7 +122,15 @@ export default function GoPatoPage() {
                 exit={{ opacity: 0, y: -10 }}
                 transition={transition.slideUp}
               >
-                <StateSection state={appState} />
+                <StateSection
+                  state={appState}
+                  onAction={() => {
+                    // "Confirm" on appointment → move to confirmed
+                    if (appState === "appointment") setAppState("confirmed");
+                    // "Rate" pill → back to empty for demo purposes
+                    if (appState === "rate") setAppState("empty");
+                  }}
+                />
               </motion.div>
             </AnimatePresence>
           </div>
@@ -129,7 +148,7 @@ export default function GoPatoPage() {
             <ServiceList />
           </div>
 
-          {/* Bottom nav — fixed inside the phone */}
+          {/* Bottom nav */}
           <BottomNav />
         </div>
       </div>

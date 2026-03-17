@@ -17,9 +17,10 @@ const SERVICES = [
 
 interface AppointmentCardProps {
   onConfirm?: () => void;
+  showConfirm?: boolean;
 }
 
-export function AppointmentCard({ onConfirm }: AppointmentCardProps) {
+export function AppointmentCard({ onConfirm, showConfirm = true }: AppointmentCardProps) {
   return (
     <div
       className="mx-3 rounded-2xl p-4 relative"
@@ -45,18 +46,20 @@ export function AppointmentCard({ onConfirm }: AppointmentCardProps) {
           </p>
         </div>
 
-        {/* Confirm button */}
-        <button
-          onClick={onConfirm}
-          className="rounded-full px-4 h-9 text-white text-[12px] font-medium tracking-wider shrink-0 ml-2"
-          style={{
-            background: "#FFC736",
-            fontFamily: "Roboto, sans-serif",
-            boxShadow: "0px 2px 8px rgba(0,0,0,0.08)",
-          }}
-        >
-          Confirm
-        </button>
+        {/* Confirm button — only shown in unconfirmed state */}
+        {showConfirm && (
+          <button
+            onClick={onConfirm}
+            className="rounded-full px-4 h-9 text-white text-[12px] font-medium tracking-wider shrink-0 ml-2"
+            style={{
+              background: "#FFC736",
+              fontFamily: "Roboto, sans-serif",
+              boxShadow: "0px 2px 8px rgba(0,0,0,0.08)",
+            }}
+          >
+            Confirm
+          </button>
+        )}
       </div>
 
       {/* Service icons */}
