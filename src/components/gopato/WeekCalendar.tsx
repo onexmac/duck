@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { easing } from "@/lib/motion-tokens";
 
-const DAY_NAMES = ["S", "M", "T", "W", "T", "F", "S"];
+// Appointment indicator dot colours — service category palette, not semantic
 const DOTS = ["#9b98d6", "#f0776f", "#ffc736", "#85b3f8"];
 
-// Base: Sunday March 9 = date 9 at offset 0
-const BASE_SUN = 9;
+const DAY_NAMES = ["S", "M", "T", "W", "T", "F", "S"];
+const BASE_SUN = 9; // March 9, 2026 = offset 0
 
 function getWeekDays(weekOffset: number) {
   const start = BASE_SUN + weekOffset * 7;
@@ -43,12 +44,12 @@ export function WeekCalendar({ activeDate, onSelect, weekOffset, onWeekChange }:
           variants={{
             enter: (d: number) => ({ x: d * 56, opacity: 0 }),
             center: { x: 0, opacity: 1 },
-            exit: (d: number) => ({ x: -d * 56, opacity: 0 }),
+            exit:  (d: number) => ({ x: -d * 56, opacity: 0 }),
           }}
           initial="enter"
           animate="center"
           exit="exit"
-          transition={{ duration: 0.22, ease: [0, 0, 0.2, 1] }}
+          transition={{ duration: 0.22, ease: easing.easeOut }}
           drag="x"
           dragConstraints={{ left: 0, right: 0 }}
           dragElastic={0.12}
@@ -70,17 +71,14 @@ export function WeekCalendar({ activeDate, onSelect, weekOffset, onWeekChange }:
                 className="flex flex-col items-center relative"
                 style={{ minWidth: 40, WebkitTapHighlightColor: "transparent" }}
               >
+                {/* Sliding card background */}
                 {isActive && (
                   <motion.div
                     layoutId="dayCard"
-                    className="absolute rounded-[16px]"
+                    className="absolute rounded-[16px] bg-bg-surface"
                     style={{
                       inset: "0px",
-                      top: -8,
-                      bottom: -8,
-                      left: -6,
-                      right: -6,
-                      background: "#fdfdfd",
+                      top: -8, bottom: -8, left: -6, right: -6,
                       boxShadow: "0px 1px 6px 0px rgba(180,184,210,0.35)",
                       zIndex: 0,
                     }}
@@ -88,24 +86,34 @@ export function WeekCalendar({ activeDate, onSelect, weekOffset, onWeekChange }:
                   />
                 )}
 
+                {/* Day letter */}
                 <span
                   className="relative z-10 text-[12px] font-medium tracking-wider pt-2"
                   style={{
-                    fontFamily: "Roboto, sans-serif",
-                    color: isActive ? "#2f3644" : isSunday ? "#4c82ee" : "#b4b8d2",
+                    fontFamily: "var(--font-family-sans)",
+                    color: isActive
+                      ? "var(--color-text-primary)"
+                      : isSunday
+                        ? "var(--color-text-link)"
+                        : "var(--color-text-muted)",
                   }}
                 >
                   {letter}
                 </span>
 
+                {/* Day number */}
                 <motion.span
                   className="relative z-10 leading-tight mt-0.5"
                   animate={{
-                    color: isActive ? "#2f3644" : isSunday ? "#4c82ee" : "#2f3644",
+                    color: isActive
+                      ? "var(--color-text-primary)"
+                      : isSunday
+                        ? "var(--color-text-link)"
+                        : "var(--color-text-primary)",
                   }}
                   transition={{ duration: 0.15 }}
                   style={{
-                    fontFamily: "Roboto, sans-serif",
+                    fontFamily: "var(--font-family-sans)",
                     fontSize: isActive ? 24 : 16,
                     fontWeight: isActive ? 900 : 400,
                   }}
@@ -113,6 +121,7 @@ export function WeekCalendar({ activeDate, onSelect, weekOffset, onWeekChange }:
                   {date}
                 </motion.span>
 
+                {/* Appointment dots */}
                 <AnimatePresence>
                   {isActive ? (
                     <motion.div
