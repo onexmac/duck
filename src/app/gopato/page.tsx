@@ -1,163 +1,100 @@
-"use client";
-/**
- * GoPato Home — prototype built from Figma Duck System (node 7486:6775)
- * via Figma MCP → get_design_context + get_screenshot
- *
- * 7 states faithful to the Figma canvas:
- *  1. empty       — no subscription
- *  2. sunday      — no services today
- *  3. appointment — unconfirmed card (with Confirm btn)
- *  4. missed      — missing a visit
- *  5. extra       — extra slot available
- *  6. confirmed   — card confirmed (no Confirm btn)
- *  7. rate        — confirmed + Rate previous visit pill
- */
+import Link from "next/link";
+import { ArrowRight, Smartphone, FlaskConical, LayoutGrid } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { StatusBar } from "@/components/gopato/StatusBar";
-import { WeekCalendar } from "@/components/gopato/WeekCalendar";
-import { StateSection, type GoPatoState } from "@/components/gopato/StateSection";
-import { ServiceList } from "@/components/gopato/ServiceList";
-import { BottomNav } from "@/components/gopato/BottomNav";
-import { transition } from "@/lib/motion-tokens";
-
-// State → calendar active date + tab label mapping (matches Figma)
-const STATE_CONFIG: Record<GoPatoState, { date: number; label: string }> = {
-  empty:       { date: 15, label: "No plan" },
-  sunday:      { date: 10, label: "Sunday" },
-  appointment: { date: 13, label: "Appointment" },
-  missed:      { date: 13, label: "Missed visit" },
-  extra:       { date: 14, label: "Extra slot" },
-  confirmed:   { date: 11, label: "Confirmed" },
-  rate:        { date: 11, label: "Rate visit" },
-};
-
-const STATES: GoPatoState[] = [
-  "empty",
-  "sunday",
-  "appointment",
-  "missed",
-  "extra",
-  "confirmed",
-  "rate",
+const SECTIONS = [
+  {
+    href: "/gopato/prototype",
+    icon: Smartphone,
+    title: "Home Prototype",
+    description: "7 interactive states: empty, sunday, appointment, missed, extra, confirmed, rate.",
+    badge: "7 states",
+  },
+  {
+    href: "/gopato/test",
+    icon: FlaskConical,
+    title: "Component Tests",
+    description: "Individual component playground — StatusBar, WeekCalendar, StateSection, BottomNav.",
+    badge: "playground",
+  },
 ];
 
-export default function GoPatoPage() {
-  const [appState, setAppState] = useState<GoPatoState>("appointment");
-
-  const { date } = STATE_CONFIG[appState];
-
+export default function GoPatoPortal() {
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-start py-8 px-4 gap-6"
-      style={{ background: "#1a1a2e" }}
-    >
-      {/* Page title */}
-      <div className="text-center">
-        <h1 className="text-white text-xl font-semibold tracking-tight">
-          🦆 Duck System — GoPato Prototype
-        </h1>
-        <p className="text-white/50 text-sm mt-1">
-          Built from Figma via MCP · node 7486:6775
-        </p>
-      </div>
-
-      {/* State switcher tabs */}
-      <div className="flex flex-wrap gap-2 justify-center">
-        {STATES.map((s) => (
-          <button
-            key={s}
-            onClick={() => setAppState(s)}
-            className="px-3 py-1.5 rounded-full text-xs font-medium transition-all"
-            style={{
-              background: appState === s ? "#FFC736" : "rgba(255,255,255,0.1)",
-              color: appState === s ? "#2f3644" : "rgba(255,255,255,0.7)",
-            }}
-          >
-            {STATE_CONFIG[s].label}
-          </button>
-        ))}
-      </div>
-
-      {/* Phone frame */}
-      <div
-        className="relative overflow-hidden shrink-0"
-        style={{
-          width: 375,
-          height: 812,
-          borderRadius: 44,
-          background: "#ffffff",
-          boxShadow: "0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.1)",
-        }}
-      >
-        {/* Phone inner bezel */}
-        <div
-          className="absolute inset-[3px] rounded-[41px] overflow-hidden flex flex-col"
-          style={{ background: "#fafafa" }}
-        >
-          {/* Status bar */}
-          <StatusBar />
-
-          {/* App header */}
-          <div className="px-5 pt-2 pb-1">
-            <h1
-              className="text-[24px] font-black tracking-[0.72px]"
-              style={{ fontFamily: "Roboto, sans-serif", color: "#2f3644" }}
-            >
-              GoPato Home
-            </h1>
+    <div className="min-h-screen bg-bg-page">
+      {/* Header */}
+      <header className="sticky top-0 z-40 border-b border-border-default bg-bg-surface/80 backdrop-blur">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
+          <div className="flex items-center gap-2">
+            <Link href="/" className="text-sm text-text-muted hover:text-text-primary transition-colors">
+              ← Duck System
+            </Link>
+            <span className="text-text-muted">/</span>
+            <span className="text-sm font-semibold text-text-primary flex items-center gap-1.5">
+              <span>🥔</span> GoPato
+            </span>
           </div>
-
-          {/* Week calendar */}
-          <WeekCalendar activeDate={date} />
-
-          {/* State section — animated on state change */}
-          <div className="px-0 mt-2 mb-3" style={{ minHeight: 170 }}>
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={appState}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={transition.slideUp}
-              >
-                <StateSection
-                  state={appState}
-                  onAction={() => {
-                    // "Confirm" on appointment → move to confirmed
-                    if (appState === "appointment") setAppState("confirmed");
-                    // "Rate" pill → back to empty for demo purposes
-                    if (appState === "rate") setAppState("empty");
-                  }}
-                />
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* Gradient separator */}
-          <div
-            className="h-10 shrink-0"
-            style={{
-              background: "linear-gradient(180deg, #fafafa 0%, #F2F6F8 100%)",
-            }}
-          />
-
-          {/* Services list — scrollable */}
-          <div className="flex-1 overflow-y-auto" style={{ paddingBottom: 88 }}>
-            <ServiceList />
-          </div>
-
-          {/* Bottom nav */}
-          <BottomNav />
+          <Badge variant="info">Figma node 7486:6775</Badge>
         </div>
-      </div>
+      </header>
 
-      {/* Footer note */}
-      <p className="text-white/30 text-xs text-center max-w-sm">
-        Design tokens: #FFC736 HomeYellow · #2f3644 Dark · #9494AD Muted · #4c82ee Blue<br />
-        Font: Roboto Black / Medium / Regular · Shadow: rgba(180,184,210,0.3)
-      </p>
+      <main className="mx-auto max-w-5xl px-6 py-12 space-y-10">
+
+        {/* Hero */}
+        <section className="space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight text-text-primary">
+            GoPato Portal
+          </h1>
+          <p className="text-text-secondary max-w-xl">
+            Mobile app prototype built from the Duck Design System. Select a section below.
+          </p>
+        </section>
+
+        {/* Nav cards */}
+        <section className="grid gap-4 sm:grid-cols-2">
+          {SECTIONS.map(({ href, icon: Icon, title, description, badge }) => (
+            <Link
+              key={href}
+              href={href}
+              className="group flex flex-col gap-3 rounded-xl border border-border-default bg-bg-surface p-5 hover:border-interactive-primary hover:shadow-md transition-all duration-200"
+            >
+              <div className="flex items-start justify-between">
+                <div className="rounded-lg bg-bg-subtle p-2">
+                  <Icon className="h-5 w-5 text-interactive-primary" />
+                </div>
+                <Badge variant="outline" className="text-xs font-mono">{badge}</Badge>
+              </div>
+              <div>
+                <p className="font-semibold text-text-primary group-hover:text-interactive-primary transition-colors">
+                  {title}
+                </p>
+                <p className="text-sm text-text-muted mt-0.5">{description}</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-text-muted group-hover:text-interactive-primary transition-colors self-end" />
+            </Link>
+          ))}
+        </section>
+
+        {/* Quick-link to all states */}
+        <section className="space-y-3">
+          <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">
+            Quick links — prototype states
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {["empty", "sunday", "appointment", "missed", "extra", "confirmed", "rate"].map((s) => (
+              <Link
+                key={s}
+                href={`/gopato/prototype?state=${s}`}
+                className="px-3 py-1.5 rounded-full text-xs font-medium border border-border-default bg-bg-surface text-text-secondary hover:border-interactive-primary hover:text-interactive-primary transition-all"
+              >
+                {s}
+              </Link>
+            ))}
+          </div>
+        </section>
+
+      </main>
     </div>
   );
 }
