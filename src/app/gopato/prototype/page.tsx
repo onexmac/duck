@@ -1,19 +1,6 @@
 "use client";
-/**
- * GoPato Home — prototype built from Figma Duck System (node 7486:6775)
- * via Figma MCP → get_design_context + get_screenshot
- *
- * 7 states faithful to the Figma canvas:
- *  1. empty       — no subscription
- *  2. sunday      — no services today
- *  3. appointment — unconfirmed card (with Confirm btn)
- *  4. missed      — missing a visit
- *  5. extra       — extra slot available
- *  6. confirmed   — card confirmed (no Confirm btn)
- *  7. rate        — confirmed + Rate previous visit pill
- */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import { StatusBar } from "@/components/gopato/StatusBar";
@@ -24,7 +11,6 @@ import { BottomNav } from "@/components/gopato/BottomNav";
 import { transition } from "@/lib/motion-tokens";
 import Link from "next/link";
 
-// State → calendar active date + tab label mapping (matches Figma)
 const STATE_CONFIG: Record<GoPatoState, { date: number; label: string }> = {
   empty:       { date: 15, label: "No plan" },
   sunday:      { date: 10, label: "Sunday" },
@@ -36,16 +22,10 @@ const STATE_CONFIG: Record<GoPatoState, { date: number; label: string }> = {
 };
 
 const STATES: GoPatoState[] = [
-  "empty",
-  "sunday",
-  "appointment",
-  "missed",
-  "extra",
-  "confirmed",
-  "rate",
+  "empty", "sunday", "appointment", "missed", "extra", "confirmed", "rate",
 ];
 
-export default function GoPatoPage() {
+function GoPatoPrototype() {
   const searchParams = useSearchParams();
   const [appState, setAppState] = useState<GoPatoState>(() => {
     const s = searchParams.get("state") as GoPatoState | null;
@@ -64,14 +44,12 @@ export default function GoPatoPage() {
       className="min-h-screen flex flex-col items-center justify-start py-8 px-4 gap-6"
       style={{ background: "#1a1a2e" }}
     >
-      {/* Back link */}
       <div className="w-full max-w-sm flex">
-        <Link href="/gopato" className="text-white/50 hover:text-white text-sm transition-colors">
+        <Link href="/" className="text-white/50 hover:text-white text-sm transition-colors">
           ← GoPato Portal
         </Link>
       </div>
 
-      {/* Page title */}
       <div className="text-center">
         <h1 className="text-white text-xl font-semibold tracking-tight">
           🦆 Duck System — GoPato Prototype
@@ -81,7 +59,6 @@ export default function GoPatoPage() {
         </p>
       </div>
 
-      {/* State switcher tabs */}
       <div className="flex flex-wrap gap-2 justify-center">
         {STATES.map((s) => (
           <button
@@ -98,7 +75,6 @@ export default function GoPatoPage() {
         ))}
       </div>
 
-      {/* Phone frame */}
       <div
         className="relative overflow-hidden shrink-0"
         style={{
@@ -109,15 +85,12 @@ export default function GoPatoPage() {
           boxShadow: "0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.1)",
         }}
       >
-        {/* Phone inner bezel */}
         <div
           className="absolute inset-[3px] rounded-[41px] overflow-hidden flex flex-col"
           style={{ background: "#fafafa" }}
         >
-          {/* Status bar */}
           <StatusBar />
 
-          {/* App header */}
           <div className="px-5 pt-2 pb-1">
             <h1
               className="text-[24px] font-black tracking-[0.72px]"
@@ -127,10 +100,8 @@ export default function GoPatoPage() {
             </h1>
           </div>
 
-          {/* Week calendar */}
           <WeekCalendar activeDate={date} />
 
-          {/* State section — animated on state change */}
           <div className="px-0 mt-2 mb-3" style={{ minHeight: 170 }}>
             <AnimatePresence mode="wait">
               <motion.div
@@ -143,9 +114,7 @@ export default function GoPatoPage() {
                 <StateSection
                   state={appState}
                   onAction={() => {
-                    // "Confirm" on appointment → move to confirmed
                     if (appState === "appointment") setAppState("confirmed");
-                    // "Rate" pill → back to empty for demo purposes
                     if (appState === "rate") setAppState("empty");
                   }}
                 />
@@ -153,29 +122,31 @@ export default function GoPatoPage() {
             </AnimatePresence>
           </div>
 
-          {/* Gradient separator */}
           <div
             className="h-10 shrink-0"
-            style={{
-              background: "linear-gradient(180deg, #fafafa 0%, #F2F6F8 100%)",
-            }}
+            style={{ background: "linear-gradient(180deg, #fafafa 0%, #F2F6F8 100%)" }}
           />
 
-          {/* Services list — scrollable */}
           <div className="flex-1 overflow-y-auto" style={{ paddingBottom: 88 }}>
             <ServiceList />
           </div>
 
-          {/* Bottom nav */}
           <BottomNav />
         </div>
       </div>
 
-      {/* Footer note */}
       <p className="text-white/30 text-xs text-center max-w-sm">
         Design tokens: #FFC736 HomeYellow · #2f3644 Dark · #9494AD Muted · #4c82ee Blue<br />
         Font: Roboto Black / Medium / Regular · Shadow: rgba(180,184,210,0.3)
       </p>
     </div>
+  );
+}
+
+export default function GoPatoPage() {
+  return (
+    <Suspense>
+      <GoPatoPrototype />
+    </Suspense>
   );
 }
