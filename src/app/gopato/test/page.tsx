@@ -68,7 +68,7 @@ export default function GoPatoTestPage() {
             ))}
           </div>
           <div className="rounded-xl overflow-hidden w-[375px] border border-border-default" style={{ background: "#fafafa" }}>
-            <WeekCalendar activeDate={activeDate} />
+            <WeekCalendar activeDate={activeDate} onSelect={setActiveDate} weekOffset={0} onWeekChange={() => {}} />
           </div>
         </section>
 

@@ -1,11 +1,7 @@
 "use client";
-// GoPato — bottom navigation bar
-// Faithful to Figma "melimenu" node 7486:7392
-//
-// 4 items: Person | Home | Chat | Orders
-// Active item: yellow filled circle behind the icon (white icon on yellow)
 
 import { useState } from "react";
+import { motion } from "motion/react";
 
 const NAV_ITEMS = [
   {
@@ -63,9 +59,9 @@ export function BottomNav() {
 
   return (
     <div
-      className="absolute bottom-0 left-0 right-0 h-[88px]"
+      className="absolute bottom-0 left-0 right-0 z-10 h-[88px]"
       style={{
-        background: "linear-gradient(180deg, rgba(253,253,253,0) 0%, rgba(253,253,253,0.765) 25%, rgb(253,253,253) 64%)",
+        background: "linear-gradient(180deg, rgba(253,253,253,0) 0%, rgba(253,253,253,0.8) 28%, #fdfdfd 60%)",
       }}
     >
       <div
@@ -75,19 +71,35 @@ export function BottomNav() {
         {NAV_ITEMS.map(({ id, icon }) => {
           const isActive = id === active;
           return (
-            <button
+            <motion.button
               key={id}
               onClick={() => setActive(id)}
-              className="flex items-center justify-center"
+              whileTap={{ scale: 0.82 }}
+              transition={{ type: "spring", stiffness: 500, damping: 28 }}
+              className="flex items-center justify-center relative"
               style={{
                 width: 48,
                 height: 48,
                 borderRadius: 24,
-                backgroundColor: isActive ? "#FFC736" : "transparent",
+                WebkitTapHighlightColor: "transparent",
               }}
             >
-              {icon(isActive)}
-            </button>
+              {isActive && (
+                <motion.div
+                  layoutId="navBubble"
+                  className="absolute inset-0 rounded-full"
+                  style={{ backgroundColor: "#FFC736" }}
+                  transition={{ type: "spring", stiffness: 360, damping: 34 }}
+                />
+              )}
+              <motion.span
+                className="relative z-10"
+                animate={{ scale: isActive ? 1.05 : 1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 28 }}
+              >
+                {icon(isActive)}
+              </motion.span>
+            </motion.button>
           );
         })}
       </div>
