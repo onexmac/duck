@@ -41,48 +41,63 @@ Local Styles:    [Detected / Not detected]
 
 ---
 
-## Things 3 Principles (the "gopato" standard)
+## Gopato — Core Stack
 
-These define the feel and behavior target for this design system. Reference them whenever evaluating, building, or refining UI.
+The gopato feel comes down to three properties: **zero-latency UI**, **physics-based gesture interactions**, and **buttery micro-animations**. These are the specific tools that get you there in React.
 
-### Snappy & Responsive
-- Interactions feel **instant** — no perceived lag on taps, clicks, or transitions
-- Animations are **purposeful and short** (150–250ms), never decorative
-- Feedback is immediate — hover, press, and focus states respond at the gesture
+### Framework — Next.js (App Router) or Vite + React
+- Next.js if you need routing or server components
+- Vite if it's pure client-side
+- Both give you fast HMR and lean bundles — the foundation for zero-latency dev and production performance
 
-### Spatial Clarity
-- **Whitespace is load-bearing** — breathing room is not wasted space, it creates hierarchy
-- Elements are grouped by proximity, not by borders or dividers
-- The grid is invisible but strict — alignment is never approximate
+### Animation — Motion (formerly Framer Motion) `motion`
+**Non-negotiable.** Things 3's feel lives in spring physics, not easing curves. Use it as follows:
+- `spring` transitions with custom `stiffness` / `damping` — replicates snappy-but-organic motion
+- `AnimatePresence` — list item enter/exit (tasks completing, appearing)
+- `layout` prop — automatic FLIP animations when items reorder; no manual coordinate math
 
-### Typography First
-- Type hierarchy does the heavy lifting — size, weight, and color before icons or labels
-- One type scale, used consistently — no one-off sizes
-- Body text is always readable; secondary text fades, never disappears
+```tsx
+// The spring signature for gopato feel
+transition={{ type: "spring", stiffness: 400, damping: 30 }}
+```
 
-### Minimal Chrome
-- The UI gets out of the way — content and actions are the hero
-- Controls appear when needed, not always
-- No decorative shadows, gradients, or surfaces unless they carry meaning
+### Drag — `@dnd-kit/core`
+- Lighter than `react-beautiful-dnd`, composes cleanly with Motion
+- Native keyboard + pointer event support
+- For Things-style sidebar dragging: combine with Motion's `useDragControls`
 
-### Focused Actions
-- One clear primary action per view
-- Destructive actions are never the easiest tap
-- Progressive disclosure — complexity is hidden until the user reaches for it
+### State — Zustand
+Things 3 feels fast partly because state updates are synchronous and local.
+- No boilerplate, no cascading re-renders like Redux
+- Store updates are direct — UI responds at the frame, not after a dispatch cycle
+- For a task/list app, this is the exact right fit
 
-### Tactile Feel
-- Interactions feel **physical** — things slide, spring, and settle
-- Drag, swipe, and long-press are first-class — not afterthoughts
-- State changes feel like consequences, not teleportation
+### Virtualization — TanStack Virtual
+- Keeps long task lists scrolling at 60fps
+- Things 3 doesn't render thousands of items — but if your list might grow, this is non-optional
+- Add it before you need it, not after scrolling degrades
 
-### Calm Density
-- Information density is **medium** — not sparse, not cluttered
-- Lists breathe; rows have enough padding to feel tappable
-- Empty states are considered, not placeholders
+### Styling — Tailwind + CSS Custom Properties
+- Tailwind for layout and spacing
+- CSS vars for design tokens (piped through Style Dictionary)
+- **Avoid runtime CSS-in-JS** — it adds latency on every render, which kills the zero-latency feel
 
-### Polish Parity
-- Light and dark mode receive equal care — neither is an afterthought
-- Every edge state (loading, error, empty, single item) is designed, not assumed
+---
+
+## Things 3 Design Principles (supporting context)
+
+These back up the stack choices above. Reference when evaluating or auditing UI.
+
+| Principle | What it means |
+|---|---|
+| Snappy & Responsive | Feedback tied to gesture, not result. 150–250ms is the perception threshold. |
+| Spatial Clarity | Whitespace creates hierarchy — no borders or dividers needed. |
+| Typography First | Weight and opacity express hierarchy before size jumps or icons. |
+| Minimal Chrome | Controls appear when needed. Visible-but-unused controls are cognitive load. |
+| Focused Actions | One primary action per view. Every equal-weight option adds decision cost. |
+| Tactile Feel | Physical metaphors: spring, settle, collapse. State changes feel earned. |
+| Calm Density | Medium density — tappable rows, breathing room, no wasted screen space. |
+| Polish Parity | Every edge state designed: loading, error, empty, dark mode. No fallbacks. |
 
 ---
 
@@ -90,9 +105,10 @@ These define the feel and behavior target for this design system. Reference them
 
 When the user says **"more gopato"**, take the current component or screen in context and:
 
-1. **Audit against the principles above** — identify what's off (too dense, slow, cluttered, chrome-heavy)
-2. **List the gaps** briefly (2–5 bullets max)
-3. **Apply the fixes directly** — don't just describe them, make the changes
-4. **Prioritize feel over feature** — snappiness and clarity before adding anything new
+1. **Check the stack first** — is Motion being used for this interaction? Is state in Zustand? Is there a CSS-in-JS runtime adding latency?
+2. **Audit against the principles** — identify what's off (too dense, wrong animation, chrome-heavy, easing curves instead of springs)
+3. **List the gaps** briefly (2–5 bullets max)
+4. **Apply the fixes directly** — don't describe them, make the changes
+5. **Prioritize feel over feature** — snappiness and physics before adding anything new
 
-Do not redesign from scratch. Gopato is a refinement pass, not a rewrite.
+Gopato is a refinement pass, not a rewrite.
