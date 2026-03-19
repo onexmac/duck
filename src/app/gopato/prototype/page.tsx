@@ -1,15 +1,12 @@
 "use client";
-
-import { useState, Suspense, useCallback } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { StatusBar } from "@/components/gopato/StatusBar";
 import { WeekCalendar } from "@/components/gopato/WeekCalendar";
 import { StateSection, type GoPatoState } from "@/components/gopato/StateSection";
 import { ServiceList } from "@/components/gopato/ServiceList";
 import { BottomNav, type NavTab } from "@/components/gopato/BottomNav";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { transition, spring } from "@/lib/motion-tokens";
-import Link from "next/link";
 
 // ── Date ↔ State mapping ───────────────────────────────────────────────────
 const DAY_STATES: GoPatoState[] = [
@@ -37,29 +34,6 @@ const STATE_LABELS: Record<GoPatoState, string> = {
 };
 
 const TAB_ORDER: NavTab[] = ["home", "chat", "orders", "profile"];
-
-// State tab pill — onPointerDown for instant response
-function StateTabPill({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
-  const [pressed, setPressed] = useState(false);
-  return (
-    <motion.button
-      onClick={onClick}
-      onPointerDown={() => setPressed(true)}
-      onPointerUp={() => setPressed(false)}
-      onPointerLeave={() => setPressed(false)}
-      animate={{
-        scale: pressed ? 0.88 : 1,
-        background: active ? "var(--color-interactive-success)" : "var(--color-bg-subtle)",
-        color: active ? "var(--color-interactive-success-text)" : "var(--color-text-primary)",
-      }}
-      transition={spring.press}
-      className="px-3 py-1.5 rounded-full text-xs font-medium"
-      style={{ WebkitTapHighlightColor: "transparent" }}
-    >
-      {label}
-    </motion.button>
-  );
-}
 
 // ── Secondary screens ──────────────────────────────────────────────────────
 // Plan card — spring press (onPointerDown) + shimmer shine sweep on mount
@@ -444,126 +418,53 @@ function GoPatoPrototype() {
   };
 
   return (
+    // Full viewport — no phone frame, no portal chrome. Feels like a native iOS app.
     <div
-      className="min-h-screen flex flex-col items-center justify-start py-8 px-4 gap-5"
-      style={{ background: "var(--color-bg-inverse)" }}
+      className="fixed inset-0 flex flex-col overflow-hidden"
+      style={{ background: "var(--color-bg-page)" }}
     >
-      {/* Top bar */}
-      <div className="w-full max-w-sm flex items-center justify-between">
-        <Link
-          href="/gopato"
-          className="text-sm transition-colors"
-          style={{ color: "var(--color-text-secondary)" }}
-        >
-          ← GoPato Portal
-        </Link>
-        <ThemeToggle />
-      </div>
+      <StatusBar />
 
-      {/* Title */}
-      <div className="text-center">
-        <h1
-          className="text-xl font-semibold tracking-tight"
-          style={{ color: "var(--color-text-inverse)" }}
+      {/* Screen content */}
+      <AnimatePresence mode="wait" custom={navDirection}>
+        <motion.div
+          key={navTab}
+          custom={navDirection}
+          variants={{
+            enter: (d: number) => ({ x: d * 40, opacity: 0 }),
+            center: { x: 0, opacity: 1 },
+            exit:  (d: number) => ({ x: -d * 40, opacity: 0 }),
+          }}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{ duration: 0.22, ease: [0, 0, 0.2, 1] }}
+          className="flex flex-col flex-1 min-h-0 relative overflow-hidden"
         >
-          GoPato Prototype
-        </h1>
-        <p className="text-sm mt-1" style={{ color: "var(--color-text-secondary)" }}>
-          Duck System · node 7486:6775
-        </p>
-      </div>
-
-      {/* State tabs — only when on home tab */}
-      <AnimatePresence>
-        {navTab === "home" && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.18 }}
-            className="flex flex-wrap gap-2 justify-center"
-          >
-            {STATES.map((s) => (
-              <StateTabPill
-                key={s}
-                label={STATE_LABELS[s]}
-                active={appState === s}
-                onClick={() => handleStateTab(s)}
-              />
-            ))}
-          </motion.div>
-        )}
+          {navTab === "home" && (
+            <HomeScreen
+              weekOffset={weekOffset}
+              activeDate={activeDate}
+              appState={appState}
+              onDaySelect={handleDaySelect}
+              onWeekChange={handleWeekChange}
+              onAction={() => {
+                if (appState === "appointment") handleStateTab("confirmed");
+                if (appState === "rate") handleStateTab("empty");
+              }}
+            />
+          )}
+          {navTab === "profile" && <ProfileScreen />}
+          {navTab === "chat"    && <ChatScreen />}
+          {navTab === "orders"  && <OrdersScreen />}
+        </motion.div>
       </AnimatePresence>
 
-      {/* Phone frame */}
-      <div
-        className="relative overflow-hidden shrink-0"
-        style={{
-          width: 375,
-          height: 812,
-          borderRadius: 44,
-          background: "var(--color-bg-elevated)",
-          boxShadow: "0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.08)",
-        }}
-      >
-        {/* Phone inner */}
-        <div
-          className="absolute inset-[3px] rounded-[41px] overflow-hidden flex flex-col"
-          style={{ background: "var(--color-bg-page)" }}
-        >
-          <StatusBar />
-
-          {/* Screen content — animated between nav tabs */}
-          <AnimatePresence mode="wait" custom={navDirection}>
-            <motion.div
-              key={navTab}
-              custom={navDirection}
-              variants={{
-                enter: (d: number) => ({ x: d * 40, opacity: 0 }),
-                center: { x: 0, opacity: 1 },
-                exit:  (d: number) => ({ x: -d * 40, opacity: 0 }),
-              }}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ duration: 0.22, ease: [0, 0, 0.2, 1] }}
-              className="flex flex-col flex-1 min-h-0 relative"
-            >
-              {navTab === "home" && (
-                <HomeScreen
-                  weekOffset={weekOffset}
-                  activeDate={activeDate}
-                  appState={appState}
-                  onDaySelect={handleDaySelect}
-                  onWeekChange={handleWeekChange}
-                  onAction={() => {
-                    if (appState === "appointment") handleStateTab("confirmed");
-                    if (appState === "rate") handleStateTab("empty");
-                  }}
-                />
-              )}
-              {navTab === "profile" && <ProfileScreen />}
-              {navTab === "chat"    && <ChatScreen />}
-              {navTab === "orders"  && <OrdersScreen />}
-            </motion.div>
-          </AnimatePresence>
-
-          {/* Bottom nav — always on top */}
-          <BottomNav activeTab={navTab} onTabChange={handleNavChange} />
-        </div>
-      </div>
-
-      <p className="text-xs text-center max-w-sm" style={{ color: "var(--color-text-muted)" }}>
-        Swipe calendar · drag sheet · tap nav tabs
-      </p>
+      <BottomNav activeTab={navTab} onTabChange={handleNavChange} />
     </div>
   );
 }
 
 export default function GoPatoPage() {
-  return (
-    <Suspense>
-      <GoPatoPrototype />
-    </Suspense>
-  );
+  return <GoPatoPrototype />;
 }
