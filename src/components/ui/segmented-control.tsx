@@ -6,6 +6,7 @@ import {
   useMotionValue,
   useTransform,
   animate,
+  MotionValue,
 } from "motion/react"
 import { spring } from "@/lib/motion-tokens"
 
@@ -15,6 +16,54 @@ interface SegmentedControlProps {
   tabs: { id: string; label: string }[]
   activeTab: string
   onTabChange: (id: string) => void
+}
+
+// ─── TabLabel ─────────────────────────────────────────────────────────────────
+// Defined outside SegmentedControl so React never treats it as a new component
+// type on re-render — which would cause full unmount/remount and reset the
+// useTransform motion state on every keystroke or state update above.
+
+interface TabLabelProps {
+  tab: { id: string; label: string }
+  index: number
+  pillX: MotionValue<number>
+  tabWidth: number
+  onPointerDown: (id: string) => void
+}
+
+function TabLabel({ tab, index, pillX, tabWidth, onPointerDown }: TabLabelProps) {
+  const color = useTransform(pillX, (x) => {
+    if (tabWidth <= 0) return "var(--color-text-secondary)"
+    const center = index * tabWidth + tabWidth / 2
+    const pillCenter = x + tabWidth / 2
+    const distance = Math.abs(center - pillCenter)
+    const t = Math.max(0, 1 - distance / tabWidth)
+    return t > 0.5 ? "var(--color-text-primary)" : "var(--color-text-secondary)"
+  })
+
+  return (
+    <motion.button
+      type="button"
+      onPointerDown={(e) => {
+        e.preventDefault()
+        onPointerDown(tab.id)
+      }}
+      className="relative z-10 flex-1 select-none text-center"
+      style={{
+        fontFamily: "Roboto, sans-serif",
+        fontWeight: 700,
+        fontSize: "16px",
+        letterSpacing: "0.8px",
+        color,
+        background: "transparent",
+        border: "none",
+        cursor: "pointer",
+        padding: "8px 0",
+      }}
+    >
+      {tab.label}
+    </motion.button>
+  )
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -147,47 +196,6 @@ export function SegmentedControl({
     [activeTab, onTabChange],
   )
 
-  // ─── Per-label text color interpolation ───────────────────────────────
-
-  function TabLabel({ tab, index }: { tab: { id: string; label: string }; index: number }) {
-    // Map pill position to a 0..1 "active-ness" for this tab
-    const color = useTransform(pillX, (x) => {
-      if (tabWidth <= 0) return "var(--color-text-secondary)"
-      const center = index * tabWidth + tabWidth / 2
-      const pillCenter = x + tabWidth / 2
-      const distance = Math.abs(center - pillCenter)
-      // Fully active when distance < half tab, fully inactive beyond full tab
-      const t = Math.max(0, 1 - distance / tabWidth)
-      return t > 0.5 ? "var(--color-text-primary)" : "var(--color-text-secondary)"
-    })
-
-    return (
-      <motion.button
-        key={tab.id}
-        type="button"
-        onPointerDown={(e) => {
-          // Only respond to taps, not drags (drag is handled on the pill)
-          e.preventDefault()
-          handleTabPointerDown(tab.id)
-        }}
-        className="relative z-10 flex-1 select-none text-center"
-        style={{
-          fontFamily: "Roboto, sans-serif",
-          fontWeight: 700,
-          fontSize: "16px",
-          letterSpacing: "0.8px",
-          color,
-          background: "transparent",
-          border: "none",
-          cursor: "pointer",
-          padding: "8px 0",
-        }}
-      >
-        {tab.label}
-      </motion.button>
-    )
-  }
-
   // ─── Render ───────────────────────────────────────────────────────────
 
   return (
@@ -213,7 +221,14 @@ export function SegmentedControl({
 
       {/* Tab labels */}
       {tabs.map((tab, i) => (
-        <TabLabel key={tab.id} tab={tab} index={i} />
+        <TabLabel
+          key={tab.id}
+          tab={tab}
+          index={i}
+          pillX={pillX}
+          tabWidth={tabWidth}
+          onPointerDown={handleTabPointerDown}
+        />
       ))}
     </div>
   )

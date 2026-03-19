@@ -16,7 +16,7 @@ function getWeekDays(weekOffset: number) {
   return DAY_NAMES.map((letter, i) => ({
     letter,
     date: start + i,
-    isSunday: i === 0 || i === 6,
+    isSunday: i === 0,
   }));
 }
 
