@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
+// AnimatePresence kept for the week-slide animation below
 import { easing } from "@/lib/motion-tokens";
 
 // Appointment indicator dot colours — service category palette, not semantic
@@ -71,20 +72,18 @@ export function WeekCalendar({ activeDate, onSelect, weekOffset, onWeekChange }:
                 className="flex flex-col items-center relative"
                 style={{ minWidth: 40, WebkitTapHighlightColor: "transparent" }}
               >
-                {/* Sliding card background */}
-                {isActive && (
-                  <motion.div
-                    layoutId="dayCard"
-                    className="absolute rounded-[16px] bg-bg-surface"
-                    style={{
-                      inset: "0px",
-                      top: -8, bottom: -8, left: -6, right: -6,
-                      boxShadow: "0px 1px 6px 0px rgba(180,184,210,0.35)",
-                      zIndex: 0,
-                    }}
-                    transition={{ type: "spring", stiffness: 380, damping: 36 }}
-                  />
-                )}
+                {/* Card background — CSS opacity only, no layout animation, no sibling side-effects */}
+                <div
+                  className="absolute rounded-[16px] bg-bg-surface"
+                  style={{
+                    top: -8, bottom: -8, left: -6, right: -6,
+                    boxShadow: "0px 1px 6px 0px rgba(180,184,210,0.35)",
+                    zIndex: 0,
+                    opacity: isActive ? 1 : 0,
+                    transition: "opacity 0.15s ease",
+                    pointerEvents: "none",
+                  }}
+                />
 
                 {/* Day letter */}
                 <span
@@ -96,50 +95,43 @@ export function WeekCalendar({ activeDate, onSelect, weekOffset, onWeekChange }:
                       : isSunday
                         ? "var(--color-text-link)"
                         : "var(--color-text-muted)",
+                    transition: "color 0.15s ease",
                   }}
                 >
                   {letter}
                 </span>
 
-                {/* Day number */}
-                <motion.span
+                {/* Day number — CSS transitions only, no layout reflow on siblings */}
+                <span
                   className="relative z-10 leading-tight mt-0.5"
-                  animate={{
-                    color: isActive
-                      ? "var(--color-text-primary)"
-                      : isSunday
-                        ? "var(--color-text-link)"
-                        : "var(--color-text-primary)",
-                  }}
-                  transition={{ duration: 0.15 }}
                   style={{
                     fontFamily: "var(--font-family-sans)",
                     fontSize: isActive ? 24 : 16,
                     fontWeight: isActive ? 900 : 400,
+                    color: isSunday && !isActive
+                      ? "var(--color-text-link)"
+                      : "var(--color-text-primary)",
+                    transition: "font-size 0.15s ease, font-weight 0.15s ease, color 0.15s ease",
                   }}
                 >
                   {date}
-                </motion.span>
+                </span>
 
-                {/* Appointment dots */}
-                <AnimatePresence>
-                  {isActive ? (
-                    <motion.div
-                      key="dots"
-                      initial={{ opacity: 0, scale: 0.6 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.6 }}
-                      transition={{ duration: 0.18 }}
-                      className="relative z-10 flex gap-[3px] mt-1.5 pb-2"
-                    >
-                      {DOTS.map((color) => (
-                        <div key={color} className="w-[6px] h-[6px] rounded-full" style={{ backgroundColor: color }} />
-                      ))}
-                    </motion.div>
-                  ) : (
-                    <div key="spacer" className="pb-2" style={{ height: 16 }} />
-                  )}
-                </AnimatePresence>
+                {/* Appointment dots — fixed height spacer always present, dots fade in/out */}
+                <div className="relative z-10 flex gap-[3px] mt-1.5 pb-2" style={{ height: 16 }}>
+                  {DOTS.map((color) => (
+                    <div
+                      key={color}
+                      className="w-[6px] h-[6px] rounded-full"
+                      style={{
+                        backgroundColor: color,
+                        opacity: isActive ? 1 : 0,
+                        transform: isActive ? "scale(1)" : "scale(0.5)",
+                        transition: "opacity 0.18s ease, transform 0.18s ease",
+                      }}
+                    />
+                  ))}
+                </div>
               </motion.button>
             );
           })}
