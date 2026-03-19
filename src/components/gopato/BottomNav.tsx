@@ -3,72 +3,30 @@
 import { useState } from "react";
 import { motion } from "motion/react";
 import { spring } from "@/lib/motion-tokens";
+import { NAV_ICONS } from "@/lib/figma-icons";
 
-export type NavTab = "profile" | "home" | "chat" | "orders";
+export type NavTab = "home" | "chat" | "orders" | "profile";
 
-const NAV_ITEMS: { id: NavTab; icon: (active: boolean) => React.ReactNode }[] = [
-  {
-    id: "home",
-    icon: (active) => (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path
-          d="M3 10.5L12 3L21 10.5V20C21 20.55 20.55 21 20 21H15V15H9V21H4C3.45 21 3 20.55 3 20V10.5Z"
-          fill={active ? "var(--color-text-inverse)" : "var(--color-text-muted)"}
-        />
-      </svg>
-    ),
-  },
-  {
-    id: "chat",
-    icon: (active) => (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path
-          d="M4 4H20C20.55 4 21 4.45 21 5V14C21 14.55 20.55 15 20 15H8L4 19V5C4 4.45 4.45 4 4 4Z"
-          stroke={active ? "var(--color-text-inverse)" : "var(--color-text-muted)"}
-          strokeWidth="2" strokeLinejoin="round" fill="none"
-        />
-        <circle cx="9"  cy="9.5" r="1" fill={active ? "var(--color-text-inverse)" : "var(--color-text-muted)"} />
-        <circle cx="12" cy="9.5" r="1" fill={active ? "var(--color-text-inverse)" : "var(--color-text-muted)"} />
-        <circle cx="15" cy="9.5" r="1" fill={active ? "var(--color-text-inverse)" : "var(--color-text-muted)"} />
-      </svg>
-    ),
-  },
-  {
-    id: "orders",
-    icon: (active) => (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <rect x="4" y="3" width="16" height="18" rx="2"
-          stroke={active ? "var(--color-text-inverse)" : "var(--color-text-muted)"}
-          strokeWidth="2" fill="none" />
-        <line x1="8" y1="8"  x2="16" y2="8"  stroke={active ? "var(--color-text-inverse)" : "var(--color-text-muted)"} strokeWidth="1.5" strokeLinecap="round" />
-        <line x1="8" y1="12" x2="16" y2="12" stroke={active ? "var(--color-text-inverse)" : "var(--color-text-muted)"} strokeWidth="1.5" strokeLinecap="round" />
-        <line x1="8" y1="16" x2="12" y2="16" stroke={active ? "var(--color-text-inverse)" : "var(--color-text-muted)"} strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-    ),
-  },
-  {
-    id: "profile",
-    icon: (active) => (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="8" r="4"
-          stroke={active ? "var(--color-text-inverse)" : "var(--color-text-muted)"}
-          strokeWidth="2" />
-        <path d="M4 20C4 17 7.6 15 12 15C16.4 15 20 17 20 20"
-          stroke={active ? "var(--color-text-inverse)" : "var(--color-text-muted)"}
-          strokeWidth="2" strokeLinecap="round" />
-      </svg>
-    ),
-  },
+// Nav items use real GoPato icons from Figma (node IDs in figma-icons.ts).
+// Icons are loaded as static PNGs, colored via CSS mask-image so active/idle
+// states can be tinted without multiple image variants.
+const NAV_ITEMS: { id: NavTab; src: string; w: number; h: number }[] = [
+  { id: "home",    src: NAV_ICONS.home,   w: 22, h: 22 },
+  { id: "chat",    src: NAV_ICONS.chat,   w: 24, h: 22 },
+  { id: "orders",  src: NAV_ICONS.orders, w: 20, h: 24 },
+  { id: "profile", src: NAV_ICONS.avatar, w: 22, h: 20 },
 ];
 
 interface NavButtonProps {
   id: NavTab;
-  icon: (active: boolean) => React.ReactNode;
+  src: string;
+  w: number;
+  h: number;
   isActive: boolean;
   onTabChange: (tab: NavTab) => void;
 }
 
-function NavButton({ id, icon, isActive, onTabChange }: NavButtonProps) {
+function NavButton({ id, src, w, h, isActive, onTabChange }: NavButtonProps) {
   const [pressed, setPressed] = useState(false);
   return (
     <motion.button
@@ -89,13 +47,26 @@ function NavButton({ id, icon, isActive, onTabChange }: NavButtonProps) {
           transition={spring.snappy}
         />
       )}
-      <motion.span
+      {/* Icon colored via mask-image — one PNG, two colors */}
+      <div
         className="relative z-10"
-        animate={{ scale: isActive ? 1.05 : 1 }}
-        transition={spring.snappy}
-      >
-        {icon(isActive)}
-      </motion.span>
+        style={{
+          width: w,
+          height: h,
+          maskImage: `url(${src})`,
+          WebkitMaskImage: `url(${src})`,
+          maskSize: "contain",
+          WebkitMaskSize: "contain",
+          maskRepeat: "no-repeat",
+          WebkitMaskRepeat: "no-repeat",
+          maskPosition: "center",
+          WebkitMaskPosition: "center",
+          backgroundColor: isActive
+            ? "var(--color-text-inverse)"
+            : "var(--color-text-muted)",
+          transition: "background-color 0.15s ease",
+        }}
+      />
     </motion.button>
   );
 }
@@ -107,17 +78,17 @@ interface BottomNavProps {
 
 export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
   return (
-    // Proper flex footer — no absolute positioning so screens get correct height.
-    // safe-area-inset-bottom handles iPhone home indicator notch.
     <div
       className="shrink-0 bg-bg-surface flex items-center justify-around px-6 pt-3"
       style={{ paddingBottom: "max(20px, env(safe-area-inset-bottom))" }}
     >
-      {NAV_ITEMS.map(({ id, icon }) => (
+      {NAV_ITEMS.map(({ id, src, w, h }) => (
         <NavButton
           key={id}
           id={id}
-          icon={icon}
+          src={src}
+          w={w}
+          h={h}
           isActive={id === activeTab}
           onTabChange={onTabChange}
         />

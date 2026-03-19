@@ -5,10 +5,11 @@ import { motion, useDragControls, useMotionValue, animate } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { spring } from "@/lib/motion-tokens";
 
-// Figma MCP asset URLs (valid 7 days from 2026-03-17)
-const imgUnion  = "https://www.figma.com/api/mcp/asset/8e11c633-605c-4546-a288-0234be780977";
-const imgUnion1 = "https://www.figma.com/api/mcp/asset/3972499a-d568-40b0-b02b-c0ce167fbad7";
-const imgUnion2 = "https://www.figma.com/api/mcp/asset/0949ae4f-5077-4247-b29f-f2c1f9482d33";
+import { SERVICE_ICONS } from "@/lib/figma-icons";
+// Service icons sourced from GoPato Figma file — see src/lib/figma-icons.ts
+const imgUnion  = SERVICE_ICONS.clean;
+const imgUnion1 = SERVICE_ICONS.bread;
+const imgUnion2 = SERVICE_ICONS.pet;
 
 // Snap positions (y translation from natural bottom-aligned position)
 const FULL = 0;

@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "build:tokens": "node style-dictionary.config.mjs",
+    "fetch-icons": "node scripts/fetch-icons.mjs",
     "dev": "npm run build:tokens && next dev --turbo",
-    "build": "npm run build:tokens && next build",
+    "build": "npm run build:tokens && npm run fetch-icons && next build",
     "start": "next start",
     "lint": "next lint"
   },

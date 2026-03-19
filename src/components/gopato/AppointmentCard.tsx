@@ -9,11 +9,12 @@ import { spring } from "@/lib/motion-tokens";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-// Figma MCP asset URLs (valid 7 days from 2026-03-17)
-const imgClean  = "https://www.figma.com/api/mcp/asset/4fc57afd-fd39-4d95-bd79-1d92b20f4a64";
-const imgRefill = "https://www.figma.com/api/mcp/asset/f4008ec8-c946-463b-9775-ddf49770cf2b";
-const imgPaw    = "https://www.figma.com/api/mcp/asset/990b2c20-508f-49cb-9e5e-e0e06c2c10b4";
-const imgBolt   = "https://www.figma.com/api/mcp/asset/ec56c831-c360-48f5-a4d3-94cdadb1d222";
+import { SERVICE_ICONS } from "@/lib/figma-icons";
+// Service icons sourced from GoPato Figma file — see src/lib/figma-icons.ts
+const imgClean  = SERVICE_ICONS.clean;
+const imgRefill = SERVICE_ICONS.drinks;
+const imgPaw    = SERVICE_ICONS.pet;
+const imgBolt   = SERVICE_ICONS.gift;
 
 // Service category colours — distinct identity palette, not design-system semantic tokens
 const SERVICES = [
