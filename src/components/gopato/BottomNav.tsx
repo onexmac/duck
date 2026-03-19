@@ -8,19 +8,6 @@ export type NavTab = "profile" | "home" | "chat" | "orders";
 
 const NAV_ITEMS: { id: NavTab; icon: (active: boolean) => React.ReactNode }[] = [
   {
-    id: "profile",
-    icon: (active) => (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="8" r="4"
-          stroke={active ? "var(--color-text-inverse)" : "var(--color-text-muted)"}
-          strokeWidth="2" />
-        <path d="M4 20C4 17 7.6 15 12 15C16.4 15 20 17 20 20"
-          stroke={active ? "var(--color-text-inverse)" : "var(--color-text-muted)"}
-          strokeWidth="2" strokeLinecap="round" />
-      </svg>
-    ),
-  },
-  {
     id: "home",
     icon: (active) => (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -56,6 +43,19 @@ const NAV_ITEMS: { id: NavTab; icon: (active: boolean) => React.ReactNode }[] = 
         <line x1="8" y1="8"  x2="16" y2="8"  stroke={active ? "var(--color-text-inverse)" : "var(--color-text-muted)"} strokeWidth="1.5" strokeLinecap="round" />
         <line x1="8" y1="12" x2="16" y2="12" stroke={active ? "var(--color-text-inverse)" : "var(--color-text-muted)"} strokeWidth="1.5" strokeLinecap="round" />
         <line x1="8" y1="16" x2="12" y2="16" stroke={active ? "var(--color-text-inverse)" : "var(--color-text-muted)"} strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+  {
+    id: "profile",
+    icon: (active) => (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="8" r="4"
+          stroke={active ? "var(--color-text-inverse)" : "var(--color-text-muted)"}
+          strokeWidth="2" />
+        <path d="M4 20C4 17 7.6 15 12 15C16.4 15 20 17 20 20"
+          stroke={active ? "var(--color-text-inverse)" : "var(--color-text-muted)"}
+          strokeWidth="2" strokeLinecap="round" />
       </svg>
     ),
   },

@@ -36,7 +36,7 @@ const STATE_LABELS: Record<GoPatoState, string> = {
   missed: "Missed", extra: "Extra", confirmed: "Confirmed", rate: "Rate",
 };
 
-const TAB_ORDER: NavTab[] = ["profile", "home", "chat", "orders"];
+const TAB_ORDER: NavTab[] = ["home", "chat", "orders", "profile"];
 
 // State tab pill — onPointerDown for instant response
 function StateTabPill({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
@@ -62,6 +62,55 @@ function StateTabPill({ label, active, onClick }: { label: string; active: boole
 }
 
 // ── Secondary screens ──────────────────────────────────────────────────────
+// Plan card — spring press (onPointerDown) + shimmer shine sweep on mount
+function PlanCard() {
+  const [pressed, setPressed] = useState(false);
+  return (
+    <motion.div
+      className="mx-4 mb-4 rounded-2xl p-4 relative overflow-hidden select-none cursor-pointer"
+      style={{
+        background: "var(--color-interactive-success)",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.14)",
+      }}
+      animate={{ scale: pressed ? 0.97 : 1 }}
+      transition={spring.press}
+      onPointerDown={() => setPressed(true)}
+      onPointerUp={() => setPressed(false)}
+      onPointerLeave={() => setPressed(false)}
+    >
+      {/* Shine sweep — runs once on mount, simulates "turned on" feel */}
+      <motion.div
+        className="absolute inset-y-0 pointer-events-none"
+        style={{
+          width: "55%",
+          background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.22) 50%, transparent 100%)",
+          borderRadius: "inherit",
+        }}
+        initial={{ x: "-100%" }}
+        animate={{ x: "260%" }}
+        transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1], delay: 0.25 }}
+      />
+      {/* Subtle permanent highlight — top edge glow */}
+      <div
+        className="absolute inset-x-0 top-0 h-[1px] pointer-events-none rounded-t-2xl"
+        style={{ background: "rgba(255,255,255,0.4)" }}
+      />
+      <p
+        className="text-[11px] font-bold tracking-widest uppercase mb-1 relative z-10"
+        style={{ color: "var(--color-interactive-success-text)", opacity: 0.65 }}
+      >
+        Current Plan
+      </p>
+      <p className="text-[20px] font-black relative z-10" style={{ color: "var(--color-interactive-success-text)" }}>
+        Home Plus
+      </p>
+      <p className="text-[13px] mt-0.5 relative z-10" style={{ color: "var(--color-interactive-success-text)", opacity: 0.75 }}>
+        2 visits / week · Renews April 1
+      </p>
+    </motion.div>
+  );
+}
+
 function ProfileScreen() {
   return (
     <div
@@ -92,24 +141,8 @@ function ProfileScreen() {
         <p className="text-[13px] text-text-secondary mt-0.5">maria.garcia@gopato.cr</p>
       </div>
 
-      {/* Active plan card */}
-      <div className="mx-4 mb-4 rounded-2xl p-4" style={{
-        background: "var(--color-interactive-success)",
-        boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
-      }}>
-        <p
-          className="text-[11px] font-bold tracking-widest uppercase mb-1"
-          style={{ color: "var(--color-interactive-success-text)", opacity: 0.6 }}
-        >
-          Current Plan
-        </p>
-        <p className="text-[20px] font-black" style={{ color: "var(--color-interactive-success-text)" }}>
-          Home Plus
-        </p>
-        <p className="text-[13px] mt-0.5" style={{ color: "var(--color-interactive-success-text)", opacity: 0.7 }}>
-          2 visits / week · Renews April 1
-        </p>
-      </div>
+      {/* Active plan card — spring press + shimmer shine on mount */}
+      <PlanCard />
 
       {/* Settings rows */}
       {[

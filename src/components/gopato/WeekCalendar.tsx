@@ -27,84 +27,112 @@ interface WeekCalendarProps {
   onWeekChange: (offset: number) => void;
 }
 
-// Per-day press state needs its own component so each button has independent state
+// Per-day button — outer element has fixed dimensions so siblings never shift.
+// Only the inner motion.div scales on press (pure transform, zero layout effect).
 function DayButton({ letter, date, isSunday, isActive, onSelect }: {
   letter: string; date: number; isSunday: boolean; isActive: boolean;
   onSelect: (date: number) => void;
 }) {
   const [pressed, setPressed] = useState(false);
   return (
-    <motion.button
+    <button
       onClick={() => onSelect(date)}
       onPointerDown={() => setPressed(true)}
       onPointerUp={() => setPressed(false)}
       onPointerLeave={() => setPressed(false)}
-      animate={{ scale: pressed ? 0.88 : 1 }}
-      transition={spring.press}
-      className="flex flex-col items-center relative"
-      style={{ minWidth: 40, WebkitTapHighlightColor: "transparent" }}
+      style={{
+        minWidth: 40,
+        height: 84,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "flex-start",
+        position: "relative",
+        background: "none",
+        border: "none",
+        padding: 0,
+        WebkitTapHighlightColor: "transparent",
+        cursor: "pointer",
+        flexShrink: 0,
+      }}
     >
-      {/* Card background — CSS opacity only, no layout animation */}
-      <div
-        className="absolute rounded-[16px] bg-bg-surface"
+      {/* Scale lives here — never touches layout dimensions */}
+      <motion.div
+        animate={{ scale: pressed ? 0.84 : 1 }}
+        transition={spring.press}
         style={{
-          top: -8, bottom: -8, left: -6, right: -6,
-          boxShadow: "0px 1px 6px 0px rgba(180,184,210,0.35)",
-          zIndex: 0,
-          opacity: isActive ? 1 : 0,
-          transition: "opacity 0.15s ease",
-          pointerEvents: "none",
-        }}
-      />
-
-      {/* Day letter */}
-      <span
-        className="relative z-10 text-[12px] font-medium tracking-wider pt-2"
-        style={{
-          fontFamily: "var(--font-family-sans)",
-          color: isActive
-            ? "var(--color-text-primary)"
-            : isSunday
-              ? "var(--color-text-link)"
-              : "var(--color-text-muted)",
-          transition: "color 0.15s ease",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          position: "relative",
+          width: "100%",
+          height: "100%",
         }}
       >
-        {letter}
-      </span>
+        {/* Card background */}
+        <div
+          className="absolute rounded-[16px] bg-bg-surface"
+          style={{
+            top: 0, bottom: 0, left: -6, right: -6,
+            boxShadow: "0px 1px 6px 0px rgba(180,184,210,0.35)",
+            zIndex: 0,
+            opacity: isActive ? 1 : 0,
+            transition: "opacity 0.15s ease",
+            pointerEvents: "none",
+          }}
+        />
 
-      {/* Day number */}
-      <span
-        className="relative z-10 leading-tight mt-0.5"
-        style={{
-          fontFamily: "var(--font-family-sans)",
-          fontSize: isActive ? 24 : 16,
-          fontWeight: isActive ? 900 : 400,
-          color: isSunday && !isActive
-            ? "var(--color-text-link)"
-            : "var(--color-text-primary)",
-          transition: "font-size 0.15s ease, font-weight 0.15s ease, color 0.15s ease",
-        }}
-      >
-        {date}
-      </span>
+        {/* Day letter */}
+        <span
+          className="relative z-10 text-[12px] font-medium tracking-wider pt-2"
+          style={{
+            fontFamily: "var(--font-family-sans)",
+            color: isActive
+              ? "var(--color-text-primary)"
+              : isSunday
+                ? "var(--color-text-link)"
+                : "var(--color-text-muted)",
+            transition: "color 0.15s ease",
+          }}
+        >
+          {letter}
+        </span>
 
-      {/* Dots — fixed height so layout never shifts */}
-      <div className="relative z-10 flex gap-[3px] mt-1.5 pb-2" style={{ height: 16 }}>
-        {DOTS.map((color) => (
-          <div
-            key={color}
-            className="w-[6px] h-[6px] rounded-full"
+        {/* Day number — fixed-height cell so font-size transition never shifts siblings */}
+        <div className="relative z-10 flex items-center justify-center flex-1">
+          <span
             style={{
-              backgroundColor: color,
-              opacity: isActive ? 1 : 0,
-              transform: isActive ? "scale(1)" : "scale(0.5)",
-              transition: "opacity 0.18s ease, transform 0.18s ease",
+              fontFamily: "var(--font-family-sans)",
+              fontSize: isActive ? 24 : 16,
+              fontWeight: isActive ? 900 : 400,
+              lineHeight: 1,
+              color: isSunday && !isActive
+                ? "var(--color-text-link)"
+                : "var(--color-text-primary)",
+              transition: "font-size 0.15s ease, font-weight 0.15s ease, color 0.15s ease",
             }}
-          />
-        ))}
-      </div>
-    </motion.button>
+          >
+            {date}
+          </span>
+        </div>
+
+        {/* Dots — fixed height, fade in/out only */}
+        <div className="relative z-10 flex gap-[3px] pb-2" style={{ height: 14 }}>
+          {DOTS.map((color) => (
+            <div
+              key={color}
+              className="w-[5px] h-[5px] rounded-full"
+              style={{
+                backgroundColor: color,
+                opacity: isActive ? 1 : 0,
+                transform: isActive ? "scale(1)" : "scale(0.5)",
+                transition: "opacity 0.18s ease, transform 0.18s ease",
+              }}
+            />
+          ))}
+        </div>
+      </motion.div>
+    </button>
   );
 }
 
@@ -118,7 +146,8 @@ export function WeekCalendar({ activeDate, onSelect, weekOffset, onWeekChange }:
   };
 
   return (
-    <div className="px-4 pt-1 pb-3 overflow-hidden">
+    // pt-3 so card shadow above the row is never clipped; overflow-visible for the same reason
+    <div className="px-4 pt-3 pb-3 overflow-visible">
       <AnimatePresence mode="popLayout" initial={false} custom={direction}>
         <motion.div
           key={weekOffset}
