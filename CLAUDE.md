@@ -1,5 +1,12 @@
 # Duck System — Project Stack & Interaction Model
 
+## Deployment
+- **Vercel project:** `duck` (org: `onexmacs-projects`)
+- **Branch preview:** https://duck-git-claude-setup-design-tokens-go9qf-onexmacs-projects.vercel.app/gopato/prototype
+- **Always include the preview URL at the end of every response after making changes.**
+
+---
+
 ## Goal
 Build UIs that feel like Things 3 on React: zero-latency interactions,
 spring-physics motion, gesture-driven UX. Not "smooth" in a generic sense —
