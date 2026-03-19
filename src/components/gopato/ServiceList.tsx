@@ -149,7 +149,7 @@ export function ServiceList() {
           {(["recents", "popular"] as const).map((tab) => (
             <motion.button
               key={tab}
-              onPointerDown={() => setActiveTab(tab)}
+              onClick={() => setActiveTab(tab)}
               whileTap={{ scale: 0.94 }}
               transition={spring.snappy}
               className="flex-1 flex items-center justify-center h-8 rounded-[16px] relative z-10"

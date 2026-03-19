@@ -107,23 +107,21 @@ interface BottomNavProps {
 
 export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
   return (
+    // Proper flex footer — no absolute positioning so screens get correct height.
+    // safe-area-inset-bottom handles iPhone home indicator notch.
     <div
-      className="absolute bottom-0 left-0 right-0 z-10 h-[88px]"
-      style={{
-        background: "linear-gradient(180deg, transparent 0%, var(--color-bg-surface) 60%)",
-      }}
+      className="shrink-0 bg-bg-surface flex items-center justify-around px-6 pt-3"
+      style={{ paddingBottom: "max(20px, env(safe-area-inset-bottom))" }}
     >
-      <div className="absolute bottom-0 left-0 right-0 flex items-center justify-around px-6 pb-5 pt-3 bg-bg-surface">
-        {NAV_ITEMS.map(({ id, icon }) => (
-          <NavButton
-            key={id}
-            id={id}
-            icon={icon}
-            isActive={id === activeTab}
-            onTabChange={onTabChange}
-          />
-        ))}
-      </div>
+      {NAV_ITEMS.map(({ id, icon }) => (
+        <NavButton
+          key={id}
+          id={id}
+          icon={icon}
+          isActive={id === activeTab}
+          onTabChange={onTabChange}
+        />
+      ))}
     </div>
   );
 }

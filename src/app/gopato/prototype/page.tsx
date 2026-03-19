@@ -88,7 +88,7 @@ function PlanCard() {
 function ProfileScreen() {
   return (
     <div
-      className="flex flex-col flex-1 overflow-y-auto pb-24"
+      className="flex flex-col flex-1 overflow-y-auto"
       style={{ background: "var(--color-bg-page)" }}
     >
       {/* Avatar + name */}
@@ -186,7 +186,7 @@ function ChatScreen() {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3 pb-28">
+      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3">
         {messages.map((msg, i) => (
           <motion.div
             key={i}
@@ -234,7 +234,7 @@ function ChatScreen() {
 
       {/* Input area */}
       <div
-        className="absolute bottom-[88px] left-0 right-0 px-4 py-3 border-t flex gap-2 items-center"
+        className="shrink-0 px-4 py-3 border-t flex gap-2 items-center"
         style={{
           background: "var(--color-bg-surface)",
           borderColor: "var(--color-border-default)",
@@ -276,7 +276,7 @@ function OrdersScreen() {
 
   return (
     <div
-      className="flex flex-col flex-1 overflow-y-auto pb-28"
+      className="flex flex-col flex-1 overflow-y-auto"
       style={{ background: "var(--color-bg-page)" }}
     >
       <div className="px-5 pt-5 pb-3">

@@ -1,67 +1,42 @@
 /**
  * Generates PWA + iOS home screen icons.
- * Duck yellow background (#F4CC00), white duck on white rounded square.
+ * Duck traced from the GoPato brand icon: dark #2F3644 rubber duck
+ * on yellow #F4CC00 background, 18% padding.
  * Run: node scripts/gen-icons.mjs
  */
 import sharp from "sharp";
-import { writeFileSync } from "fs";
 
-// Duck SVG — friendly side-profile silhouette, white fill
-// Fits in a ~72% inner square (leaving 14% padding each side)
-const duckSvg = (size) => {
-  const pad = Math.round(size * 0.16);
-  const inner = size - pad * 2;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+// Traced from the GoPato Figma file (node 687:7, color #2F3644).
+// Rubber duck: round body, round head upper-right, flat bill, white belly circle.
+function makeSvg(size) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 180 180">
   <!-- Yellow background -->
-  <rect width="${size}" height="${size}" fill="#F4CC00"/>
-  <!-- Duck path scaled to inner area -->
-  <g transform="translate(${pad}, ${pad}) scale(${inner / 100})">
-    <!-- Body -->
-    <ellipse cx="52" cy="62" rx="34" ry="26" fill="white"/>
-    <!-- Head -->
-    <circle cx="22" cy="36" r="18" fill="white"/>
-    <!-- Neck connector -->
-    <ellipse cx="34" cy="50" rx="14" ry="16" fill="white"/>
-    <!-- Bill -->
-    <ellipse cx="5" cy="36" rx="10" ry="6" fill="white"/>
-    <!-- Tail -->
-    <ellipse cx="84" cy="50" rx="10" ry="14" fill="white" transform="rotate(-20 84 50)"/>
-    <!-- Eye -->
-    <circle cx="17" cy="31" r="3.5" fill="#F4CC00"/>
-    <!-- Wing hint -->
-    <ellipse cx="54" cy="58" rx="22" ry="10" fill="rgba(0,0,0,0.06)" transform="rotate(-8 54 58)"/>
-  </g>
-</svg>`;
-};
+  <rect width="180" height="180" fill="#F4CC00"/>
 
-// Rounded square for iOS (apple-touch-icon) — the OS clips corners itself,
-// but we add a slight rounded rect background for the app icon appearance
-const iosIconSvg = (size) => {
-  const pad = Math.round(size * 0.16);
-  const inner = size - pad * 2;
-  const r = Math.round(size * 0.22);
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-  <rect width="${size}" height="${size}" fill="#F4CC00"/>
-  <g transform="translate(${pad}, ${pad}) scale(${inner / 100})">
-    <ellipse cx="52" cy="62" rx="34" ry="26" fill="white"/>
-    <circle cx="22" cy="36" r="18" fill="white"/>
-    <ellipse cx="34" cy="50" rx="14" ry="16" fill="white"/>
-    <ellipse cx="5" cy="36" rx="10" ry="6" fill="white"/>
-    <ellipse cx="84" cy="50" rx="10" ry="14" fill="white" transform="rotate(-20 84 50)"/>
-    <circle cx="17" cy="31" r="3.5" fill="#F4CC00"/>
-    <ellipse cx="54" cy="58" rx="22" ry="10" fill="rgba(0,0,0,0.06)" transform="rotate(-8 54 58)"/>
-  </g>
-</svg>`;
-};
+  <!-- Body — large ellipse, bottom-heavy -->
+  <ellipse cx="82" cy="118" rx="52" ry="46" fill="#2F3644"/>
 
-async function gen(svgStr, outPath) {
-  const buf = Buffer.from(svgStr);
-  await sharp(buf).png().toFile(outPath);
+  <!-- Head — smaller circle, upper-right, overlapping body -->
+  <circle cx="126" cy="68" r="32" fill="#2F3644"/>
+
+  <!-- Neck fill — bridges head and body -->
+  <rect x="90" y="72" width="40" height="36" fill="#2F3644"/>
+
+  <!-- Bill — flat duck beak pointing right -->
+  <path d="M152 60 L172 56 L170 72 L150 76 Z" fill="#2F3644"/>
+
+  <!-- Belly — white circle inside body, brand signature detail -->
+  <circle cx="74" cy="124" r="26" fill="white"/>
+</svg>`;
+}
+
+async function gen(size, outPath) {
+  await sharp(Buffer.from(makeSvg(size))).png().toFile(outPath);
   console.log("✓", outPath);
 }
 
-await gen(iosIconSvg(180), "public/apple-touch-icon.png");
-await gen(duckSvg(192),    "public/icon-192.png");
-await gen(duckSvg(512),    "public/icon-512.png");
-await gen(duckSvg(32),     "public/favicon-32.png");
-console.log("Icons generated.");
+await gen(180, "public/apple-touch-icon.png");
+await gen(192, "public/icon-192.png");
+await gen(512, "public/icon-512.png");
+await gen(32,  "public/favicon-32.png");
+console.log("Done.");
