@@ -58,35 +58,20 @@ export const transition = {
     ease: easing.easeInOut,
   },
 
-  /** Slide up into place */
-  slideUp: {
-    duration: duration.normal,
-    ease: easing.easeOut,
-  },
+  /** Slide up into place — spring */
+  slideUp: { type: "spring", stiffness: 340, damping: 28 },
 
-  /** Slide down out of view */
-  slideDown: {
-    duration: duration.normal,
-    ease: easing.easeIn,
-  },
+  /** Slide down out of view — spring */
+  slideDown: { type: "spring", stiffness: 340, damping: 28 },
 
   /** Overshoot spring pop */
-  pop: {
-    duration: duration.slow,
-    ease: easing.spring,
-  },
+  pop: { type: "spring", stiffness: 420, damping: 22 },
 
   /** Snappy scale */
-  scale: {
-    duration: duration.fast,
-    ease: easing.spring,
-  },
+  scale: { type: "spring", stiffness: 500, damping: 30 },
 
-  /** Page-level transitions */
-  page: {
-    duration: duration.slow,
-    ease: easing.easeInOut,
-  },
+  /** Page-level / nav transitions — panel spring */
+  page: { type: "spring", stiffness: 280, damping: 26 },
 } as const;
 
 export type Duration   = typeof duration;

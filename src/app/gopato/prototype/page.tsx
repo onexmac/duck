@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { StatusBar } from "@/components/gopato/StatusBar";
 import { WeekCalendar } from "@/components/gopato/WeekCalendar";
@@ -34,6 +34,33 @@ const STATE_LABELS: Record<GoPatoState, string> = {
 };
 
 const TAB_ORDER: NavTab[] = ["home", "chat", "orders", "profile"];
+
+// ── Reusable pressable row ─────────────────────────────────────────────────
+function SettingsRow({ label, icon }: { label: string; icon: ReactNode }) {
+  const [pressed, setPressed] = useState(false);
+  return (
+    <motion.button
+      onPointerDown={() => setPressed(true)}
+      onPointerUp={() => setPressed(false)}
+      onPointerLeave={() => setPressed(false)}
+      animate={{ scale: pressed ? 0.97 : 1 }}
+      transition={spring.snappy}
+      className="flex items-center gap-3.5 mx-4 py-3.5 border-b text-left w-[calc(100%-2rem)]"
+      style={{ borderColor: "var(--color-border-default)" }}
+    >
+      <span className="shrink-0" style={{ color: "var(--color-text-primary)" }}>{icon}</span>
+      <span
+        className="flex-1 text-[15px] font-medium text-text-primary"
+        style={{ fontFamily: "var(--font-family-sans)" }}
+      >
+        {label}
+      </span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M9 18L15 12L9 6" stroke="var(--color-text-muted)" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    </motion.button>
+  );
+}
 
 // ── Secondary screens ──────────────────────────────────────────────────────
 // Plan card — spring press (onPointerDown) + shimmer shine sweep on mount
@@ -119,36 +146,16 @@ function ProfileScreen() {
       <PlanCard />
 
       {/* Settings rows */}
-      {[
-        { label: "Payment methods", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="var(--color-text-primary)" strokeWidth="1.8"/><line x1="2" y1="10" x2="22" y2="10" stroke="var(--color-text-primary)" strokeWidth="1.8"/></svg> },
-        { label: "Addresses", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.7 2 6 4.7 6 8c0 5 6 13 6 13s6-8 6-13c0-3.3-2.7-6-6-6z" stroke="var(--color-text-primary)" strokeWidth="1.8"/><circle cx="12" cy="8" r="2" stroke="var(--color-text-primary)" strokeWidth="1.8"/></svg> },
-        { label: "Notifications", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 8C18 5.2 15.3 3 12 3S6 5.2 6 8v4l-2 3h16l-2-3V8z" stroke="var(--color-text-primary)" strokeWidth="1.8" strokeLinejoin="round"/><path d="M10 19c0 1.1.9 2 2 2s2-.9 2-2" stroke="var(--color-text-primary)" strokeWidth="1.8"/></svg> },
-        { label: "Help & Support", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="var(--color-text-primary)" strokeWidth="1.8"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4" stroke="var(--color-text-primary)" strokeWidth="1.8" strokeLinecap="round"/><circle cx="12" cy="17" r="1" fill="var(--color-text-primary)"/></svg> },
-      ].map(({ label, icon }) => (
-        <motion.button
-          key={label}
-          whileTap={{ scale: 0.97 }}
-          transition={{ type: "spring", stiffness: 500, damping: 28 }}
-          className="flex items-center gap-3.5 mx-4 py-3.5 border-b text-left w-[calc(100%-2rem)]"
-          style={{ borderColor: "var(--color-border-default)" }}
-        >
-          <span className="shrink-0" style={{ color: "var(--color-text-primary)" }}>{icon}</span>
-          <span
-            className="flex-1 text-[15px] font-medium text-text-primary"
-            style={{ fontFamily: "var(--font-family-sans)" }}
-          >
-            {label}
-          </span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M9 18L15 12L9 6" stroke="var(--color-text-muted)" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-        </motion.button>
-      ))}
+      <SettingsRow label="Payment methods" icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="var(--color-text-primary)" strokeWidth="1.8"/><line x1="2" y1="10" x2="22" y2="10" stroke="var(--color-text-primary)" strokeWidth="1.8"/></svg>} />
+      <SettingsRow label="Addresses" icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.7 2 6 4.7 6 8c0 5 6 13 6 13s6-8 6-13c0-3.3-2.7-6-6-6z" stroke="var(--color-text-primary)" strokeWidth="1.8"/><circle cx="12" cy="8" r="2" stroke="var(--color-text-primary)" strokeWidth="1.8"/></svg>} />
+      <SettingsRow label="Notifications" icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 8C18 5.2 15.3 3 12 3S6 5.2 6 8v4l-2 3h16l-2-3V8z" stroke="var(--color-text-primary)" strokeWidth="1.8" strokeLinejoin="round"/><path d="M10 19c0 1.1.9 2 2 2s2-.9 2-2" stroke="var(--color-text-primary)" strokeWidth="1.8"/></svg>} />
+      <SettingsRow label="Help & Support" icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="var(--color-text-primary)" strokeWidth="1.8"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4" stroke="var(--color-text-primary)" strokeWidth="1.8" strokeLinecap="round"/><circle cx="12" cy="17" r="1" fill="var(--color-text-primary)"/></svg>} />
     </div>
   );
 }
 
 function ChatScreen() {
+  const [sendPressed, setSendPressed] = useState(false);
   const messages = [
     { from: "agent", text: "Hi María! How can we help you today?", time: "9:30 AM" },
     { from: "user",  text: "I'd like to add pet care to my next appointment", time: "9:31 AM" },
@@ -251,8 +258,11 @@ function ChatScreen() {
           Message…
         </div>
         <motion.button
-          whileTap={{ scale: 0.88 }}
-          transition={{ type: "spring", stiffness: 600, damping: 28 }}
+          onPointerDown={() => setSendPressed(true)}
+          onPointerUp={() => setSendPressed(false)}
+          onPointerLeave={() => setSendPressed(false)}
+          animate={{ scale: sendPressed ? 0.88 : 1 }}
+          transition={spring.press}
           className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
           style={{ background: "var(--color-interactive-primary)" }}
         >
@@ -438,7 +448,7 @@ function GoPatoPrototype() {
           initial="enter"
           animate="center"
           exit="exit"
-          transition={{ duration: 0.22, ease: [0, 0, 0.2, 1] }}
+          transition={spring.panel}
           className="flex flex-col flex-1 min-h-0 relative overflow-hidden"
         >
           {navTab === "home" && (
