@@ -109,7 +109,7 @@ export default function GoPatoTestPage() {
         <section className="space-y-3">
           <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">BottomNav</h2>
           <div className="rounded-xl overflow-hidden w-[375px] border border-border-default relative" style={{ background: "#fafafa", height: 88 }}>
-            <BottomNav />
+            <BottomNav activeTab="home" onTabChange={() => {}} />
           </div>
         </section>
 

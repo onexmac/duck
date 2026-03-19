@@ -37,6 +37,7 @@ export function ThemeToggle() {
       size="icon"
       onClick={toggle}
       aria-label="Toggle dark mode"
+      style={{ color: "var(--color-text-inverse)" }}
     >
       <AnimatePresence mode="wait" initial={false}>
         {dark ? (

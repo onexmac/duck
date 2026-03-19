@@ -145,9 +145,11 @@ export function ServiceList() {
       <div className="px-5 mb-3">
         <div className="flex rounded-[20px] p-1 bg-bg-page">
           {(["recents", "popular"] as const).map((tab) => (
-            <button
+            <motion.button
               key={tab}
               onClick={() => setActiveTab(tab)}
+              whileTap={{ scale: 0.94 }}
+              transition={{ type: "spring", stiffness: 500, damping: 28 }}
               className="flex-1 flex items-center justify-center h-8 rounded-[16px] relative z-10"
               style={{
                 fontFamily: "var(--font-family-sans)",
@@ -167,7 +169,7 @@ export function ServiceList() {
                 />
               )}
               <span className="relative z-10 capitalize">{tab}</span>
-            </button>
+            </motion.button>
           ))}
         </div>
       </div>

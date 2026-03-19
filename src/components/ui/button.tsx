@@ -10,12 +10,13 @@
  *   danger    — solid red (#F95C5C)
  *   naked     — text-only blue
  *
- * All: border-radius 4px, uppercase 12px text, 20px padding
+ * All buttons have spring press animation (whileTap scale down + spring back).
  * Dark mode: CSS var swap, zero component changes.
  */
 
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
+import { motion } from "motion/react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
@@ -59,7 +60,7 @@ const buttonVariants = cva(
         naked:
           "text-[var(--color-interactive-primary)] hover:underline",
 
-        // shadcn/ui aliases (for backwards compatibility)
+        // shadcn/ui aliases
         destructive:
           "rounded bg-[var(--color-interactive-danger)] text-[var(--color-interactive-danger-text)] hover:opacity-90",
         outline:
@@ -93,12 +94,22 @@ export interface ButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button";
+    const classes = cn(buttonVariants({ variant, size, className }));
+
+    if (asChild) {
+      return <Slot className={classes} ref={ref} {...props} />;
+    }
+
     return (
-      <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+      // motion.button event types conflict with React's HTML event types (onDrag, onAnimationStart, etc.)
+      // Using unknown cast to safely bridge the two APIs.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      <motion.button
+        className={classes}
         ref={ref}
-        {...props}
+        whileTap={{ scale: 0.93 }}
+        transition={{ type: "spring", stiffness: 500, damping: 28 }}
+        {...(props as unknown as React.ComponentPropsWithoutRef<typeof motion.button>)}
       />
     );
   }

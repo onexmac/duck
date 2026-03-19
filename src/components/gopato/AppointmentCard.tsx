@@ -1,7 +1,9 @@
-// GoPato — "Limpieza pro" appointment card
-// Uses design system Card + Button; service icon colours are category-specific
-// (not semantic tokens) as they represent distinct service types.
+// GoPato — "Home Appointment" card
+// Service icon colours are category-specific (not semantic tokens) — distinct identity palette.
 
+"use client";
+
+import { motion } from "motion/react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -59,10 +61,16 @@ export function AppointmentCard({ onConfirm, showConfirm = true }: AppointmentCa
         )}
       </div>
 
-      {/* Service icons */}
+      {/* Service icons — spring press on each */}
       <div className="flex gap-3 mt-4">
         {SERVICES.map(({ img, bg, label }) => (
-          <div key={label} className="flex flex-col items-center gap-1">
+          <motion.button
+            key={label}
+            whileTap={{ scale: 0.85 }}
+            transition={{ type: "spring", stiffness: 500, damping: 22 }}
+            className="flex flex-col items-center gap-1"
+            style={{ WebkitTapHighlightColor: "transparent" }}
+          >
             <div
               className="w-12 h-12 rounded-[14px] flex items-center justify-center"
               style={{
@@ -72,7 +80,7 @@ export function AppointmentCard({ onConfirm, showConfirm = true }: AppointmentCa
             >
               <img src={img} alt={label} className="w-6 h-6 object-contain" />
             </div>
-          </div>
+          </motion.button>
         ))}
       </div>
     </Card>
