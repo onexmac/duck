@@ -26,6 +26,8 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import { Tabs } from "@/components/ui/tabs";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { WeekCalendar } from "@/components/gopato/WeekCalendar";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 
 // ─────────────────────────────────────────
 // Helpers
@@ -399,6 +401,11 @@ function LayoutShells() {
 // Main page
 // ─────────────────────────────────────────
 export default function DesignSystemPage() {
+  const [calWeekOffset, setCalWeekOffset] = useState(0);
+  const [calActiveDate, setCalActiveDate] = useState(13); // Thursday
+  const [segmentedTab1, setSegmentedTab1] = useState("recents");
+  const [segmentedTab2, setSegmentedTab2] = useState("agendadas");
+
   const tabContent = {
     pipeline: (
       <div
@@ -653,6 +660,118 @@ export default function DesignSystemPage() {
         {/* Layout shells — Figma node 1635:2507 */}
         <Section title="Layout Shells" subtitle="Figma node 1635:2507 · Status bar, Tab nav, PopUp header.">
           <LayoutShells />
+        </Section>
+
+        {/* Icons */}
+        <Section title="Icons" subtitle="Navigation and service icons from the GoPato Figma file.">
+          <div className="flex flex-col gap-6">
+            <div>
+              <Label>Mask-image (Gray #B4B8D2)</Label>
+              <Row align="center">
+                {[
+                  { name: "Home", file: "nav-home", w: 22, h: 22 },
+                  { name: "Chat", file: "nav-chat", w: 24, h: 22 },
+                  { name: "Orders", file: "nav-orders", w: 20, h: 24 },
+                  { name: "Avatar", file: "nav-avatar", w: 22, h: 20 },
+                ].map(({ name, file, w, h }) => (
+                  <div key={file} className="flex flex-col items-center gap-2">
+                    <div
+                      style={{
+                        width: w,
+                        height: h,
+                        maskImage: `url(/icons/${file}.svg)`,
+                        WebkitMaskImage: `url(/icons/${file}.svg)`,
+                        maskSize: "contain",
+                        WebkitMaskSize: "contain",
+                        maskRepeat: "no-repeat",
+                        WebkitMaskRepeat: "no-repeat",
+                        maskPosition: "center",
+                        WebkitMaskPosition: "center",
+                        backgroundColor: "#B4B8D2",
+                      }}
+                    />
+                    <Label>{name} ({w}&times;{h})</Label>
+                  </div>
+                ))}
+              </Row>
+            </div>
+            <div>
+              <Label>Mask-image (Active Blue #4C82EE)</Label>
+              <Row align="center">
+                {[
+                  { name: "Home", file: "nav-home", w: 22, h: 22 },
+                  { name: "Chat", file: "nav-chat", w: 24, h: 22 },
+                  { name: "Orders", file: "nav-orders", w: 20, h: 24 },
+                  { name: "Avatar", file: "nav-avatar", w: 22, h: 20 },
+                ].map(({ name, file, w, h }) => (
+                  <div key={file} className="flex flex-col items-center gap-2">
+                    <div
+                      style={{
+                        width: w,
+                        height: h,
+                        maskImage: `url(/icons/${file}.svg)`,
+                        WebkitMaskImage: `url(/icons/${file}.svg)`,
+                        maskSize: "contain",
+                        WebkitMaskSize: "contain",
+                        maskRepeat: "no-repeat",
+                        WebkitMaskRepeat: "no-repeat",
+                        maskPosition: "center",
+                        WebkitMaskPosition: "center",
+                        backgroundColor: "#4C82EE",
+                      }}
+                    />
+                    <Label>{name} ({w}&times;{h})</Label>
+                  </div>
+                ))}
+              </Row>
+            </div>
+          </div>
+        </Section>
+
+        {/* Week Calendar */}
+        <Section title="Week Calendar" subtitle="Interactive week selector with spring press animation. Swipe to navigate weeks.">
+          <div
+            className="max-w-sm rounded-[18px] p-4"
+            style={{
+              background: "var(--color-bg-surface)",
+              boxShadow: "0px 2px 8px rgba(0,0,0,0.08), 0px 1px 2px rgba(0,0,0,0.08)",
+            }}
+          >
+            <WeekCalendar
+              activeDate={calActiveDate}
+              onSelect={setCalActiveDate}
+              weekOffset={calWeekOffset}
+              onWeekChange={setCalWeekOffset}
+            />
+          </div>
+        </Section>
+
+        {/* Segmented Control */}
+        <Section title="Segmented Control" subtitle="Draggable tab selector with spring snap. Drag or tap to switch.">
+          <div className="flex flex-col gap-6 max-w-sm">
+            <div>
+              <Label>Recents / Popular</Label>
+              <SegmentedControl
+                tabs={[
+                  { id: "recents", label: "Recents" },
+                  { id: "popular", label: "Popular" },
+                ]}
+                activeTab={segmentedTab1}
+                onTabChange={setSegmentedTab1}
+              />
+            </div>
+            <div>
+              <Label>Agendadas / Previas</Label>
+              <SegmentedControl
+                tabs={[
+                  { id: "agendadas", label: "Agendadas" },
+                  { id: "previas", label: "Previas" },
+                ]}
+                activeTab={segmentedTab2}
+                onTabChange={setSegmentedTab2}
+              />
+            </div>
+          </div>
         </Section>
 
         {/* Spacing */}
