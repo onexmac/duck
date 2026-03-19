@@ -1,7 +1,7 @@
 // GoPato — iOS-style status bar (faithful to Figma: "9:41", battery, wifi, signal)
 export function StatusBar() {
   return (
-    <div className="flex items-center justify-between px-5 pt-3 pb-1 h-[34px]">
+    <div className="flex items-center justify-between px-5 shrink-0" style={{ height: 44, paddingTop: "env(safe-area-inset-top, 14px)", paddingBottom: 4 }}>
       <span
         className="text-[15px] font-semibold text-text-primary"
         style={{ fontFamily: "var(--font-family-sans)" }}

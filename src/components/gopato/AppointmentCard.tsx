@@ -74,7 +74,7 @@ export function AppointmentCard({ onConfirm, showConfirm = true }: AppointmentCa
             className="text-[13px] mt-0.5 tracking-wide text-text-secondary"
             style={{ fontFamily: "var(--font-family-sans)" }}
           >
-            Monday February 11th, Morning
+            Thursday, March 13th · Morning
           </p>
         </div>
 

@@ -18,8 +18,8 @@ export const NAV_ICONS = {
 // ── Brand ────────────────────────────────────────────────────────────────────
 export const BRAND_ICONS = {
   // Duck has two composited layers — refreshed 2026-03-19
-  duckLayer1: "https://www.figma.com/api/mcp/asset/a5fbf58f-6a61-4137-95dd-bae4f1ea1fe7",
-  duckLayer2: "https://www.figma.com/api/mcp/asset/eb3fc0a8-15db-41b6-a4fd-3965079dc194",
+  duckLayer1: "https://www.figma.com/api/mcp/asset/a51c3b01-0846-41fa-95ec-64c55e3c06cc",
+  duckLayer2: "https://www.figma.com/api/mcp/asset/ee4a86d6-44de-4a7c-be36-97da6ecaa47d",
 } as const;
 
 // ── Service category icons ───────────────────────────────────────────────────

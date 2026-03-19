@@ -33,6 +33,7 @@ const SERVICES: Service[] = [
 
 function PricePill({ price }: { price: string }) {
   const [added, setAdded] = useState(false);
+  const [pressed, setPressed] = useState(false);
   return (
     <div className="flex items-center gap-1 shrink-0">
       <div
@@ -47,20 +48,22 @@ function PricePill({ price }: { price: string }) {
         {price}
       </div>
       <motion.button
-        onPointerDown={() => setAdded(a => !a)}
+        onPointerDown={() => { setPressed(true); setAdded(a => !a); }}
+        onPointerUp={() => setPressed(false)}
+        onPointerLeave={() => setPressed(false)}
         animate={{
-          scale: 1,
+          scale: pressed ? 0.78 : 1,
           backgroundColor: added ? "var(--color-interactive-success)" : "var(--color-bg-surface)",
           borderColor: added ? "var(--color-interactive-success)" : "var(--color-border-strong)",
         }}
-        whileTap={{ scale: 0.78 }}
         transition={spring.snappy}
         className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 border"
+        style={{ WebkitTapHighlightColor: "transparent" }}
       >
         <motion.svg
           width="14" height="14" viewBox="0 0 14 14" fill="none"
           animate={{ rotate: added ? 45 : 0 }}
-          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+          transition={spring.snappy}
         >
           <line x1="7" y1="2" x2="7" y2="12"
             stroke={added ? "var(--color-interactive-success-text)" : "var(--color-text-secondary)"}
@@ -71,6 +74,48 @@ function PricePill({ price }: { price: string }) {
         </motion.svg>
       </motion.button>
     </div>
+  );
+}
+
+// Extracted so the service icon has its own onPointerDown press state (no hooks in map)
+function ServiceListItem({ svc, index }: { svc: Service; index: number }) {
+  const [pressed, setPressed] = useState(false);
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -10 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ type: "spring", stiffness: 400, damping: 30, delay: index * 0.05 }}
+      className="flex items-center gap-3 px-5 py-3 border-b border-border-default"
+    >
+      <motion.button
+        onPointerDown={() => setPressed(true)}
+        onPointerUp={() => setPressed(false)}
+        onPointerLeave={() => setPressed(false)}
+        animate={{ scale: pressed ? 0.88 : 1 }}
+        transition={spring.press}
+        className="w-12 h-12 rounded-[14px] flex items-center justify-center shrink-0 bg-bg-subtle"
+        style={{ WebkitTapHighlightColor: "transparent" }}
+      >
+        <img src={svc.icon} alt={svc.name} className="w-6 h-6 object-contain" style={{ opacity: 0.6 }} />
+      </motion.button>
+
+      <div className="flex-1 min-w-0">
+        <p
+          className="text-[16px] font-bold leading-tight tracking-wide text-text-primary"
+          style={{ fontFamily: "var(--font-family-sans)" }}
+        >
+          {svc.name}
+        </p>
+        <p
+          className="text-[14px] mt-0.5 tracking-wide text-text-secondary"
+          style={{ fontFamily: "var(--font-family-sans)" }}
+        >
+          {svc.description}
+        </p>
+      </div>
+
+      <PricePill price={svc.price} />
+    </motion.div>
   );
 }
 
@@ -137,7 +182,7 @@ export function ServiceList() {
             className="rounded-full bg-border-strong"
             style={{ width: 36, height: 5 }}
             whileHover={{ scaleX: 1.3 }}
-            transition={{ duration: 0.15 }}
+            transition={spring.snappy}
           />
         </div>
 
@@ -189,38 +234,7 @@ export function ServiceList() {
 
         <div className="flex flex-col">
           {SERVICES.map((svc, i) => (
-            <motion.div
-              key={svc.name}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.05, duration: 0.2, ease: [0, 0, 0.2, 1] }}
-              className="flex items-center gap-3 px-5 py-3 border-b border-border-default"
-            >
-              <motion.div
-                whileTap={{ scale: 0.88 }}
-                transition={spring.press}
-                className="w-12 h-12 rounded-[14px] flex items-center justify-center shrink-0 bg-bg-subtle"
-              >
-                <img src={svc.icon} alt={svc.name} className="w-6 h-6 object-contain" style={{ opacity: 0.6 }} />
-              </motion.div>
-
-              <div className="flex-1 min-w-0">
-                <p
-                  className="text-[16px] font-bold leading-tight tracking-wide text-text-primary"
-                  style={{ fontFamily: "var(--font-family-sans)" }}
-                >
-                  {svc.name}
-                </p>
-                <p
-                  className="text-[14px] mt-0.5 tracking-wide text-text-secondary"
-                  style={{ fontFamily: "var(--font-family-sans)" }}
-                >
-                  {svc.description}
-                </p>
-              </div>
-
-              <PricePill price={svc.price} />
-            </motion.div>
+            <ServiceListItem key={svc.name} svc={svc} index={i} />
           ))}
         </div>
 

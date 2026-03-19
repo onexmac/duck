@@ -7,6 +7,7 @@ import { StateSection, type GoPatoState } from "@/components/gopato/StateSection
 import { ServiceList } from "@/components/gopato/ServiceList";
 import { BottomNav, type NavTab } from "@/components/gopato/BottomNav";
 import { transition, spring } from "@/lib/motion-tokens";
+import { BRAND_ICONS } from "@/lib/figma-icons";
 
 // ── Date ↔ State mapping ───────────────────────────────────────────────────
 const DAY_STATES: GoPatoState[] = [
@@ -115,23 +116,17 @@ function PlanCard() {
 function ProfileScreen() {
   return (
     <div
-      className="flex flex-col flex-1 overflow-y-auto"
+      className="flex flex-col flex-1 min-h-0 overflow-y-auto"
       style={{ background: "var(--color-bg-page)" }}
     >
       {/* Avatar + name */}
       <div className="flex flex-col items-center pt-6 pb-5 px-6">
         <div
-          className="w-20 h-20 rounded-full flex items-center justify-center mb-3"
-          style={{ background: "var(--color-interactive-primary)" }}
+          className="w-20 h-20 rounded-full flex items-center justify-center mb-3 relative overflow-hidden"
+          style={{ background: "var(--color-interactive-success)" }}
         >
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="8" r="4" fill="var(--color-interactive-primary-text)" />
-            <path
-              d="M4 20C4 17 7.6 15 12 15C16.4 15 20 17 20 20"
-              stroke="var(--color-interactive-primary-text)"
-              strokeWidth="2" strokeLinecap="round"
-            />
-          </svg>
+          <img alt="" className="absolute inset-0 w-full h-full object-contain p-2" src={BRAND_ICONS.duckLayer1} />
+          <img alt="" className="absolute inset-0 w-full h-full object-contain p-2" src={BRAND_ICONS.duckLayer2} />
         </div>
         <p
           className="text-[20px] font-black text-text-primary"
@@ -172,14 +167,11 @@ function ChatScreen() {
         style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)" }}
       >
         <div
-          className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
-          style={{ background: "var(--color-interactive-primary)" }}
+          className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 relative overflow-hidden"
+          style={{ background: "var(--color-interactive-success)" }}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="8" r="4" fill="var(--color-interactive-primary-text)" />
-            <path d="M4 20C4 17 7.6 15 12 15C16.4 15 20 17 20 20"
-              stroke="var(--color-interactive-primary-text)" strokeWidth="2" strokeLinecap="round" />
-          </svg>
+          <img alt="" className="absolute inset-0 w-full h-full object-contain p-0.5" src={BRAND_ICONS.duckLayer1} />
+          <img alt="" className="absolute inset-0 w-full h-full object-contain p-0.5" src={BRAND_ICONS.duckLayer2} />
         </div>
         <div>
           <p
@@ -199,7 +191,7 @@ function ChatScreen() {
             key={i}
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.06, duration: 0.2, ease: [0, 0, 0.2, 1] }}
+            transition={{ type: "spring", stiffness: 400, damping: 30, delay: i * 0.06 }}
             className={`flex ${msg.from === "user" ? "justify-end" : "justify-start"}`}
           >
             <div
@@ -286,7 +278,7 @@ function OrdersScreen() {
 
   return (
     <div
-      className="flex flex-col flex-1 overflow-y-auto"
+      className="flex flex-col flex-1 min-h-0 overflow-y-auto"
       style={{ background: "var(--color-bg-page)" }}
     >
       <div className="px-5 pt-5 pb-3">
@@ -304,7 +296,7 @@ function OrdersScreen() {
             key={i}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.06, duration: 0.2, ease: [0, 0, 0.2, 1] }}
+            transition={{ type: "spring", stiffness: 400, damping: 30, delay: i * 0.06 }}
             className="rounded-2xl p-4"
             style={{
               background: "var(--color-bg-surface)",
@@ -352,13 +344,44 @@ function HomeScreen({ weekOffset, activeDate, appState, onDaySelect, onWeekChang
   return (
     <>
       {/* App header */}
-      <div className="px-5 pt-2 pb-1 shrink-0">
-        <h1
-          className="text-[24px] font-black tracking-[0.72px] text-text-primary"
-          style={{ fontFamily: "var(--font-family-sans)" }}
+      <div className="px-5 pt-2 pb-1 shrink-0 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          {/* Duck logo — two composited Figma layers on brand yellow */}
+          <div
+            className="relative w-9 h-9 rounded-xl overflow-hidden shrink-0"
+            style={{ background: "var(--color-interactive-success)" }}
+          >
+            <img alt="" className="absolute inset-0 w-full h-full object-contain p-1" src={BRAND_ICONS.duckLayer1} />
+            <img alt="" className="absolute inset-0 w-full h-full object-contain p-1" src={BRAND_ICONS.duckLayer2} />
+          </div>
+          <h1
+            className="text-[24px] font-black tracking-[0.72px] text-text-primary"
+            style={{ fontFamily: "var(--font-family-sans)" }}
+          >
+            GoPato
+          </h1>
+        </div>
+        {/* Greeting avatar pill */}
+        <div
+          className="flex items-center gap-1.5 px-3 h-8 rounded-full"
+          style={{ background: "var(--color-bg-surface)", boxShadow: "0 1px 4px rgba(0,0,0,0.08)" }}
         >
-          GoPato Home
-        </h1>
+          <div
+            className="w-5 h-5 rounded-full flex items-center justify-center shrink-0"
+            style={{ background: "var(--color-interactive-primary)" }}
+          >
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="8" r="4" fill="white" />
+              <path d="M4 20C4 17 7.6 15 12 15C16.4 15 20 17 20 20" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+            </svg>
+          </div>
+          <span
+            className="text-[13px] font-medium text-text-secondary"
+            style={{ fontFamily: "var(--font-family-sans)" }}
+          >
+            María
+          </span>
+        </div>
       </div>
 
       {/* Week calendar */}

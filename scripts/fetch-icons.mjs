@@ -18,8 +18,8 @@ import { join } from "path";
 
 // ── Duck asset URLs (from figma-icons.ts — keep in sync) ────────────────────
 // Refreshed 2026-03-19. Expires after 7 days — re-run to refresh.
-const DUCK_L1 = "https://www.figma.com/api/mcp/asset/a5fbf58f-6a61-4137-95dd-bae4f1ea1fe7";
-const DUCK_L2 = "https://www.figma.com/api/mcp/asset/eb3fc0a8-15db-41b6-a4fd-3965079dc194";
+const DUCK_L1 = "https://www.figma.com/api/mcp/asset/a51c3b01-0846-41fa-95ec-64c55e3c06cc";
+const DUCK_L2 = "https://www.figma.com/api/mcp/asset/ee4a86d6-44de-4a7c-be36-97da6ecaa47d";
 
 function fetchBuf(url) {
   const tmp = join(mkdtempSync(join(tmpdir(), "duck-")), "asset");

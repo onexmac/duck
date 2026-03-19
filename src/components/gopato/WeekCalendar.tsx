@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 // AnimatePresence kept for the week-slide animation below
-import { easing, spring } from "@/lib/motion-tokens";
+import { spring } from "@/lib/motion-tokens";
 
 // Appointment indicator dot colours — service category palette, not semantic
 const DOTS = ["#9b98d6", "#f0776f", "#ffc736", "#85b3f8"];
@@ -160,7 +160,7 @@ export function WeekCalendar({ activeDate, onSelect, weekOffset, onWeekChange }:
           initial="enter"
           animate="center"
           exit="exit"
-          transition={{ duration: 0.22, ease: easing.easeOut }}
+          transition={spring.panel}
           drag="x"
           dragConstraints={{ left: 0, right: 0 }}
           dragElastic={0.12}
