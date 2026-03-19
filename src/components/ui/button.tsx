@@ -10,13 +10,15 @@
  *   danger    — solid red (#F95C5C)
  *   naked     — text-only blue
  *
- * All buttons have spring press animation (whileTap scale down + spring back).
+ * Press animation: onPointerDown pattern (instant response) with spring settle.
+ * See CLAUDE.md — never use onClick for visual feedback, never use whileTap.
  * Dark mode: CSS var swap, zero component changes.
  */
 
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { motion } from "motion/react";
+import { spring } from "@/lib/motion-tokens";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
@@ -93,7 +95,8 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, onPointerDown, onPointerUp, onPointerLeave, ...props }, ref) => {
+    const [pressed, setPressed] = React.useState(false);
     const classes = cn(buttonVariants({ variant, size, className }));
 
     if (asChild) {
@@ -101,14 +104,17 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }
 
     return (
-      // motion.button event types conflict with React's HTML event types (onDrag, onAnimationStart, etc.)
-      // Using unknown cast to safely bridge the two APIs.
+      // onPointerDown pattern: instant visual response on press, spring settle on release.
+      // See CLAUDE.md — never whileTap, never onClick for feedback.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <motion.button
         className={classes}
         ref={ref}
-        whileTap={{ scale: 0.93 }}
-        transition={{ type: "spring", stiffness: 500, damping: 28 }}
+        animate={{ scale: pressed ? 0.96 : 1 }}
+        transition={spring.press}
+        onPointerDown={(e) => { setPressed(true); (onPointerDown as any)?.(e); }}
+        onPointerUp={(e) => { setPressed(false); (onPointerUp as any)?.(e); }}
+        onPointerLeave={(e) => { setPressed(false); (onPointerLeave as any)?.(e); }}
         {...(props as unknown as React.ComponentPropsWithoutRef<typeof motion.button>)}
       />
     );

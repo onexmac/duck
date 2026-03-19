@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 // AnimatePresence kept for the week-slide animation below
-import { easing } from "@/lib/motion-tokens";
+import { easing, spring } from "@/lib/motion-tokens";
 
 // Appointment indicator dot colours — service category palette, not semantic
 const DOTS = ["#9b98d6", "#f0776f", "#ffc736", "#85b3f8"];
@@ -25,6 +25,87 @@ interface WeekCalendarProps {
   onSelect: (date: number) => void;
   weekOffset: number;
   onWeekChange: (offset: number) => void;
+}
+
+// Per-day press state needs its own component so each button has independent state
+function DayButton({ letter, date, isSunday, isActive, onSelect }: {
+  letter: string; date: number; isSunday: boolean; isActive: boolean;
+  onSelect: (date: number) => void;
+}) {
+  const [pressed, setPressed] = useState(false);
+  return (
+    <motion.button
+      onClick={() => onSelect(date)}
+      onPointerDown={() => setPressed(true)}
+      onPointerUp={() => setPressed(false)}
+      onPointerLeave={() => setPressed(false)}
+      animate={{ scale: pressed ? 0.88 : 1 }}
+      transition={spring.press}
+      className="flex flex-col items-center relative"
+      style={{ minWidth: 40, WebkitTapHighlightColor: "transparent" }}
+    >
+      {/* Card background — CSS opacity only, no layout animation */}
+      <div
+        className="absolute rounded-[16px] bg-bg-surface"
+        style={{
+          top: -8, bottom: -8, left: -6, right: -6,
+          boxShadow: "0px 1px 6px 0px rgba(180,184,210,0.35)",
+          zIndex: 0,
+          opacity: isActive ? 1 : 0,
+          transition: "opacity 0.15s ease",
+          pointerEvents: "none",
+        }}
+      />
+
+      {/* Day letter */}
+      <span
+        className="relative z-10 text-[12px] font-medium tracking-wider pt-2"
+        style={{
+          fontFamily: "var(--font-family-sans)",
+          color: isActive
+            ? "var(--color-text-primary)"
+            : isSunday
+              ? "var(--color-text-link)"
+              : "var(--color-text-muted)",
+          transition: "color 0.15s ease",
+        }}
+      >
+        {letter}
+      </span>
+
+      {/* Day number */}
+      <span
+        className="relative z-10 leading-tight mt-0.5"
+        style={{
+          fontFamily: "var(--font-family-sans)",
+          fontSize: isActive ? 24 : 16,
+          fontWeight: isActive ? 900 : 400,
+          color: isSunday && !isActive
+            ? "var(--color-text-link)"
+            : "var(--color-text-primary)",
+          transition: "font-size 0.15s ease, font-weight 0.15s ease, color 0.15s ease",
+        }}
+      >
+        {date}
+      </span>
+
+      {/* Dots — fixed height so layout never shifts */}
+      <div className="relative z-10 flex gap-[3px] mt-1.5 pb-2" style={{ height: 16 }}>
+        {DOTS.map((color) => (
+          <div
+            key={color}
+            className="w-[6px] h-[6px] rounded-full"
+            style={{
+              backgroundColor: color,
+              opacity: isActive ? 1 : 0,
+              transform: isActive ? "scale(1)" : "scale(0.5)",
+              transition: "opacity 0.18s ease, transform 0.18s ease",
+            }}
+          />
+        ))}
+      </div>
+    </motion.button>
+  );
 }
 
 export function WeekCalendar({ activeDate, onSelect, weekOffset, onWeekChange }: WeekCalendarProps) {
@@ -61,80 +142,16 @@ export function WeekCalendar({ activeDate, onSelect, weekOffset, onWeekChange }:
           className="flex justify-between items-center select-none"
           style={{ cursor: "grab", touchAction: "pan-y" }}
         >
-          {days.map(({ letter, date, isSunday }) => {
-            const isActive = date === activeDate;
-            return (
-              <motion.button
-                key={`${weekOffset}-${date}`}
-                onClick={() => onSelect(date)}
-                whileTap={{ scale: 0.82 }}
-                transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                className="flex flex-col items-center relative"
-                style={{ minWidth: 40, WebkitTapHighlightColor: "transparent" }}
-              >
-                {/* Card background — CSS opacity only, no layout animation, no sibling side-effects */}
-                <div
-                  className="absolute rounded-[16px] bg-bg-surface"
-                  style={{
-                    top: -8, bottom: -8, left: -6, right: -6,
-                    boxShadow: "0px 1px 6px 0px rgba(180,184,210,0.35)",
-                    zIndex: 0,
-                    opacity: isActive ? 1 : 0,
-                    transition: "opacity 0.15s ease",
-                    pointerEvents: "none",
-                  }}
-                />
-
-                {/* Day letter */}
-                <span
-                  className="relative z-10 text-[12px] font-medium tracking-wider pt-2"
-                  style={{
-                    fontFamily: "var(--font-family-sans)",
-                    color: isActive
-                      ? "var(--color-text-primary)"
-                      : isSunday
-                        ? "var(--color-text-link)"
-                        : "var(--color-text-muted)",
-                    transition: "color 0.15s ease",
-                  }}
-                >
-                  {letter}
-                </span>
-
-                {/* Day number — CSS transitions only, no layout reflow on siblings */}
-                <span
-                  className="relative z-10 leading-tight mt-0.5"
-                  style={{
-                    fontFamily: "var(--font-family-sans)",
-                    fontSize: isActive ? 24 : 16,
-                    fontWeight: isActive ? 900 : 400,
-                    color: isSunday && !isActive
-                      ? "var(--color-text-link)"
-                      : "var(--color-text-primary)",
-                    transition: "font-size 0.15s ease, font-weight 0.15s ease, color 0.15s ease",
-                  }}
-                >
-                  {date}
-                </span>
-
-                {/* Appointment dots — fixed height spacer always present, dots fade in/out */}
-                <div className="relative z-10 flex gap-[3px] mt-1.5 pb-2" style={{ height: 16 }}>
-                  {DOTS.map((color) => (
-                    <div
-                      key={color}
-                      className="w-[6px] h-[6px] rounded-full"
-                      style={{
-                        backgroundColor: color,
-                        opacity: isActive ? 1 : 0,
-                        transform: isActive ? "scale(1)" : "scale(0.5)",
-                        transition: "opacity 0.18s ease, transform 0.18s ease",
-                      }}
-                    />
-                  ))}
-                </div>
-              </motion.button>
-            );
-          })}
+          {days.map(({ letter, date, isSunday }) => (
+            <DayButton
+              key={`${weekOffset}-${date}`}
+              letter={letter}
+              date={date}
+              isSunday={isSunday}
+              isActive={date === activeDate}
+              onSelect={onSelect}
+            />
+          ))}
         </motion.div>
       </AnimatePresence>
     </div>

@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "motion/react";
+import { spring } from "@/lib/motion-tokens";
 
 export type NavTab = "profile" | "home" | "chat" | "orders";
 
@@ -59,6 +61,45 @@ const NAV_ITEMS: { id: NavTab; icon: (active: boolean) => React.ReactNode }[] = 
   },
 ];
 
+interface NavButtonProps {
+  id: NavTab;
+  icon: (active: boolean) => React.ReactNode;
+  isActive: boolean;
+  onTabChange: (tab: NavTab) => void;
+}
+
+function NavButton({ id, icon, isActive, onTabChange }: NavButtonProps) {
+  const [pressed, setPressed] = useState(false);
+  return (
+    <motion.button
+      onClick={() => onTabChange(id)}
+      onPointerDown={() => setPressed(true)}
+      onPointerUp={() => setPressed(false)}
+      onPointerLeave={() => setPressed(false)}
+      animate={{ scale: pressed ? 0.84 : 1 }}
+      transition={spring.press}
+      className="flex items-center justify-center relative"
+      style={{ width: 48, height: 48, borderRadius: 24, WebkitTapHighlightColor: "transparent" }}
+    >
+      {isActive && (
+        <motion.div
+          layoutId="navBubble"
+          className="absolute inset-0 rounded-full"
+          style={{ backgroundColor: "var(--color-interactive-success)" }}
+          transition={spring.snappy}
+        />
+      )}
+      <motion.span
+        className="relative z-10"
+        animate={{ scale: isActive ? 1.05 : 1 }}
+        transition={spring.snappy}
+      >
+        {icon(isActive)}
+      </motion.span>
+    </motion.button>
+  );
+}
+
 interface BottomNavProps {
   activeTab: NavTab;
   onTabChange: (tab: NavTab) => void;
@@ -72,38 +113,16 @@ export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
         background: "linear-gradient(180deg, transparent 0%, var(--color-bg-surface) 60%)",
       }}
     >
-      <div
-        className="absolute bottom-0 left-0 right-0 flex items-center justify-around px-6 pb-5 pt-3 bg-bg-surface"
-      >
-        {NAV_ITEMS.map(({ id, icon }) => {
-          const isActive = id === activeTab;
-          return (
-            <motion.button
-              key={id}
-              onClick={() => onTabChange(id)}
-              whileTap={{ scale: 0.82 }}
-              transition={{ type: "spring", stiffness: 500, damping: 28 }}
-              className="flex items-center justify-center relative"
-              style={{ width: 48, height: 48, borderRadius: 24, WebkitTapHighlightColor: "transparent" }}
-            >
-              {isActive && (
-                <motion.div
-                  layoutId="navBubble"
-                  className="absolute inset-0 rounded-full"
-                  style={{ backgroundColor: "var(--color-interactive-success)" }}
-                  transition={{ type: "spring", stiffness: 360, damping: 34 }}
-                />
-              )}
-              <motion.span
-                className="relative z-10"
-                animate={{ scale: isActive ? 1.05 : 1 }}
-                transition={{ type: "spring", stiffness: 400, damping: 28 }}
-              >
-                {icon(isActive)}
-              </motion.span>
-            </motion.button>
-          );
-        })}
+      <div className="absolute bottom-0 left-0 right-0 flex items-center justify-around px-6 pb-5 pt-3 bg-bg-surface">
+        {NAV_ITEMS.map(({ id, icon }) => (
+          <NavButton
+            key={id}
+            id={id}
+            icon={icon}
+            isActive={id === activeTab}
+            onTabChange={onTabChange}
+          />
+        ))}
       </div>
     </div>
   );

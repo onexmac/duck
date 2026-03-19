@@ -3,7 +3,9 @@
 
 "use client";
 
+import { useState } from "react";
 import { motion } from "motion/react";
+import { spring } from "@/lib/motion-tokens";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -20,6 +22,32 @@ const SERVICES = [
   { img: imgPaw,    bg: "#8ad1e1",                          label: "Pets"   },
   { img: imgBolt,   bg: "#7c83f5",                          label: "Bolt"   },
 ];
+
+// Extracted so each icon has its own useState for press (no hooks-in-map)
+function ServiceIcon({ img, bg, label }: { img: string; bg: string; label: string }) {
+  const [pressed, setPressed] = useState(false);
+  return (
+    <motion.button
+      onPointerDown={() => setPressed(true)}
+      onPointerUp={() => setPressed(false)}
+      onPointerLeave={() => setPressed(false)}
+      animate={{ scale: pressed ? 0.82 : 1 }}
+      transition={spring.press}
+      className="flex flex-col items-center gap-1"
+      style={{ WebkitTapHighlightColor: "transparent" }}
+    >
+      <div
+        className="w-12 h-12 rounded-[14px] flex items-center justify-center"
+        style={{
+          backgroundColor: bg,
+          boxShadow: "0px 1px 2px rgba(0,0,0,0.08), 0px 2px 8px rgba(0,0,0,0.08)",
+        }}
+      >
+        <img src={img} alt={label} className="w-6 h-6 object-contain" />
+      </div>
+    </motion.button>
+  );
+}
 
 interface AppointmentCardProps {
   onConfirm?: () => void;
@@ -61,26 +89,10 @@ export function AppointmentCard({ onConfirm, showConfirm = true }: AppointmentCa
         )}
       </div>
 
-      {/* Service icons — spring press on each */}
+      {/* Service icons */}
       <div className="flex gap-3 mt-4">
         {SERVICES.map(({ img, bg, label }) => (
-          <motion.button
-            key={label}
-            whileTap={{ scale: 0.85 }}
-            transition={{ type: "spring", stiffness: 500, damping: 22 }}
-            className="flex flex-col items-center gap-1"
-            style={{ WebkitTapHighlightColor: "transparent" }}
-          >
-            <div
-              className="w-12 h-12 rounded-[14px] flex items-center justify-center"
-              style={{
-                backgroundColor: bg,
-                boxShadow: "0px 1px 2px rgba(0,0,0,0.08), 0px 2px 8px rgba(0,0,0,0.08)",
-              }}
-            >
-              <img src={img} alt={label} className="w-6 h-6 object-contain" />
-            </div>
-          </motion.button>
+          <ServiceIcon key={label} img={img} bg={bg} label={label} />
         ))}
       </div>
     </Card>

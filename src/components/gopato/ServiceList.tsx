@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { motion, useDragControls, useMotionValue, animate } from "motion/react";
 import { Button } from "@/components/ui/button";
+import { spring } from "@/lib/motion-tokens";
 
 // Figma MCP asset URLs (valid 7 days from 2026-03-17)
 const imgUnion  = "https://www.figma.com/api/mcp/asset/8e11c633-605c-4546-a288-0234be780977";
@@ -45,13 +46,14 @@ function PricePill({ price }: { price: string }) {
         {price}
       </div>
       <motion.button
-        whileTap={{ scale: 0.8 }}
-        onClick={() => setAdded(a => !a)}
+        onPointerDown={() => setAdded(a => !a)}
         animate={{
+          scale: 1,
           backgroundColor: added ? "var(--color-interactive-success)" : "var(--color-bg-surface)",
           borderColor: added ? "var(--color-interactive-success)" : "var(--color-border-strong)",
         }}
-        transition={{ duration: 0.18 }}
+        whileTap={{ scale: 0.78 }}
+        transition={spring.snappy}
         className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 border"
       >
         <motion.svg
@@ -147,9 +149,9 @@ export function ServiceList() {
           {(["recents", "popular"] as const).map((tab) => (
             <motion.button
               key={tab}
-              onClick={() => setActiveTab(tab)}
+              onPointerDown={() => setActiveTab(tab)}
               whileTap={{ scale: 0.94 }}
-              transition={{ type: "spring", stiffness: 500, damping: 28 }}
+              transition={spring.snappy}
               className="flex-1 flex items-center justify-center h-8 rounded-[16px] relative z-10"
               style={{
                 fontFamily: "var(--font-family-sans)",
@@ -199,7 +201,8 @@ export function ServiceList() {
               className="flex items-center gap-3 px-5 py-3 border-b border-border-default"
             >
               <motion.div
-                whileTap={{ scale: 0.9 }}
+                whileTap={{ scale: 0.88 }}
+                transition={spring.press}
                 className="w-12 h-12 rounded-[14px] flex items-center justify-center shrink-0 bg-bg-subtle"
               >
                 <img src={svc.icon} alt={svc.name} className="w-6 h-6 object-contain" style={{ opacity: 0.6 }} />

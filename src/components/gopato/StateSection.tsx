@@ -1,7 +1,9 @@
 "use client";
 // GoPato — the middle section that changes based on app state
 
+import { useState } from "react";
 import { motion } from "motion/react";
+import { spring } from "@/lib/motion-tokens";
 import { AppointmentCard } from "./AppointmentCard";
 import { Button } from "@/components/ui/button";
 
@@ -19,13 +21,17 @@ interface StateSectionProps {
   onAction?: () => void;
 }
 
-// "Rate previous visit" pill — spring press animation
+// "Rate previous visit" pill — onPointerDown for instant response
 function RatePill({ onClick }: { onClick?: () => void }) {
+  const [pressed, setPressed] = useState(false);
   return (
     <motion.button
       onClick={onClick}
-      whileTap={{ scale: 0.94 }}
-      transition={{ type: "spring", stiffness: 500, damping: 28 }}
+      onPointerDown={() => setPressed(true)}
+      onPointerUp={() => setPressed(false)}
+      onPointerLeave={() => setPressed(false)}
+      animate={{ scale: pressed ? 0.96 : 1 }}
+      transition={spring.press}
       className="flex items-center gap-3 rounded-full pl-2 pr-3 h-[48px] w-full"
       style={{
         background: "var(--color-interactive-primary)",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, Suspense, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { StatusBar } from "@/components/gopato/StatusBar";
 import { WeekCalendar } from "@/components/gopato/WeekCalendar";
@@ -8,7 +8,7 @@ import { StateSection, type GoPatoState } from "@/components/gopato/StateSection
 import { ServiceList } from "@/components/gopato/ServiceList";
 import { BottomNav, type NavTab } from "@/components/gopato/BottomNav";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { transition } from "@/lib/motion-tokens";
+import { transition, spring } from "@/lib/motion-tokens";
 import Link from "next/link";
 
 // ── Date ↔ State mapping ───────────────────────────────────────────────────
@@ -37,6 +37,29 @@ const STATE_LABELS: Record<GoPatoState, string> = {
 };
 
 const TAB_ORDER: NavTab[] = ["profile", "home", "chat", "orders"];
+
+// State tab pill — onPointerDown for instant response
+function StateTabPill({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+  const [pressed, setPressed] = useState(false);
+  return (
+    <motion.button
+      onClick={onClick}
+      onPointerDown={() => setPressed(true)}
+      onPointerUp={() => setPressed(false)}
+      onPointerLeave={() => setPressed(false)}
+      animate={{
+        scale: pressed ? 0.88 : 1,
+        background: active ? "var(--color-interactive-success)" : "var(--color-bg-subtle)",
+        color: active ? "var(--color-interactive-success-text)" : "var(--color-text-primary)",
+      }}
+      transition={spring.press}
+      className="px-3 py-1.5 rounded-full text-xs font-medium"
+      style={{ WebkitTapHighlightColor: "transparent" }}
+    >
+      {label}
+    </motion.button>
+  );
+}
 
 // ── Secondary screens ──────────────────────────────────────────────────────
 function ProfileScreen() {
@@ -428,24 +451,12 @@ function GoPatoPrototype() {
             className="flex flex-wrap gap-2 justify-center"
           >
             {STATES.map((s) => (
-              <motion.button
+              <StateTabPill
                 key={s}
+                label={STATE_LABELS[s]}
+                active={appState === s}
                 onClick={() => handleStateTab(s)}
-                whileTap={{ scale: 0.88 }}
-                transition={{ type: "spring", stiffness: 500, damping: 28 }}
-                className="px-3 py-1.5 rounded-full text-xs font-medium"
-                animate={{
-                  background: appState === s
-                    ? "var(--color-interactive-success)"
-                    : "var(--color-bg-subtle)",
-                  color: appState === s
-                    ? "var(--color-interactive-success-text)"
-                    : "var(--color-text-primary)",
-                }}
-                style={{ WebkitTapHighlightColor: "transparent" }}
-              >
-                {STATE_LABELS[s]}
-              </motion.button>
+              />
             ))}
           </motion.div>
         )}

@@ -37,6 +37,19 @@ export const easing = {
   bounce:    [0.68, -0.55, 0.265, 1.55] as [number, number, number, number],
 } as const;
 
+// ─── Spring presets (Things 3 feel — use these on all interactive elements) ───
+// See CLAUDE.md for the interaction model and when to use each.
+export const spring = {
+  /** Snappy — buttons, checkboxes, day selection, nav items */
+  snappy: { type: "spring", stiffness: 400, damping: 30 },
+  /** Press feedback — immediate response on pointerDown (stiffest) */
+  press:  { type: "spring", stiffness: 600, damping: 35 },
+  /** Panel — bottom sheets, sidebars, drawers */
+  panel:  { type: "spring", stiffness: 280, damping: 26 },
+  /** Heavy — completed-task settle, drag-drop landing */
+  heavy:  { type: "spring", stiffness: 200, damping: 40 },
+} as const;
+
 // ─── Pre-composed transitions ─────────────────────────────────────────────────
 export const transition = {
   /** Subtle opacity fade */
