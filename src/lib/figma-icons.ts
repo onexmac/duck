@@ -2,24 +2,24 @@
  * GoPato Figma icon assets — file NbNiRiH3IEkE2BuYkmSQzM
  * Fetched 2026-03-19. Figma MCP assets expire after 7 days.
  *
- * Nav icons are saved as static files in /public/icons/ (run `npm run fetch-icons`).
+ * Nav icons are committed SVG files in /public/icons/ — vector, crisp at all DPIs.
  * Service/brand icons reference Figma URLs directly (used in img tags, expire in 7d).
  */
 
-// ── Navigation icons (static — downloaded to /public/icons/) ────────────────
-// These need color control via CSS mask-image, so they live as local PNGs.
+// ── Navigation icons (SVG — committed to /public/icons/, no download needed) ─
+// SVG mask-image = resolution-independent, crisp on all Retina/3x displays.
 export const NAV_ICONS = {
-  home:   "/icons/nav-home.png",
-  chat:   "/icons/nav-chat.png",
-  orders: "/icons/nav-orders.png",
-  avatar: "/icons/nav-avatar.png",
+  home:   "/icons/nav-home.svg",
+  chat:   "/icons/nav-chat.svg",
+  orders: "/icons/nav-orders.svg",
+  avatar: "/icons/nav-avatar.svg",
 } as const;
 
 // ── Brand ────────────────────────────────────────────────────────────────────
 export const BRAND_ICONS = {
-  // Duck has two composited layers
-  duckLayer1: "https://www.figma.com/api/mcp/asset/82a44129-08c4-407f-b6c4-2aae954ed123",
-  duckLayer2: "https://www.figma.com/api/mcp/asset/b42fc228-9715-476a-b5d6-86b48205a142",
+  // Duck has two composited layers — refreshed 2026-03-19
+  duckLayer1: "https://www.figma.com/api/mcp/asset/a5fbf58f-6a61-4137-95dd-bae4f1ea1fe7",
+  duckLayer2: "https://www.figma.com/api/mcp/asset/eb3fc0a8-15db-41b6-a4fd-3965079dc194",
 } as const;
 
 // ── Service category icons ───────────────────────────────────────────────────

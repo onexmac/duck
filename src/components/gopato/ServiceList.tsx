@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { spring } from "@/lib/motion-tokens";
 
 import { SERVICE_ICONS } from "@/lib/figma-icons";
-// Service icons sourced from GoPato Figma file — see src/lib/figma-icons.ts
 const imgUnion  = SERVICE_ICONS.clean;
 const imgUnion1 = SERVICE_ICONS.bread;
 const imgUnion2 = SERVICE_ICONS.pet;
@@ -79,6 +78,8 @@ export function ServiceList() {
   const dragControls = useDragControls();
   const contentRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<"recents" | "popular">("recents");
+  // Track horizontal swipe start for tab switching
+  const swipeStartX = useRef<number | null>(null);
 
   const snapTo = (currentY: number, velocityY: number) => {
     let target: number;
@@ -98,6 +99,26 @@ export function ServiceList() {
     animate(y, target, { type: "spring", stiffness: 320, damping: 36 });
   };
 
+  // Start sheet drag from the header area. Skip when pointer is on a button
+  // so tab taps don't accidentally kick off a drag.
+  const startHeaderDrag = (e: React.PointerEvent) => {
+    if ((e.target as HTMLElement).closest("button")) return;
+    dragControls.start(e);
+  };
+
+  // Horizontal swipe on the tab bar → switch tabs
+  const onTabAreaPointerDown = (e: React.PointerEvent) => {
+    swipeStartX.current = e.clientX;
+  };
+  const onTabAreaPointerUp = (e: React.PointerEvent) => {
+    if (swipeStartX.current === null) return;
+    const dx = e.clientX - swipeStartX.current;
+    swipeStartX.current = null;
+    if (Math.abs(dx) < 40) return; // too short — treat as tap
+    if (dx < 0 && activeTab === "recents") setActiveTab("popular");
+    else if (dx > 0 && activeTab === "popular") setActiveTab("recents");
+  };
+
   return (
     <motion.div
       style={{
@@ -107,7 +128,6 @@ export function ServiceList() {
         height: SHEET_HEIGHT,
         zIndex: 5,
         borderRadius: "20px 20px 0 0",
-        touchAction: "none",
       }}
       className="bg-bg-surface"
       drag="y"
@@ -117,71 +137,88 @@ export function ServiceList() {
       dragElastic={0.06}
       onDragEnd={(_, info) => snapTo(y.get(), info.velocity.y)}
     >
-      {/* ── Drag handle ── */}
-      <motion.div
-        onPointerDown={(e) => { e.preventDefault(); dragControls.start(e); }}
-        className="flex justify-center pt-3 pb-2"
-        style={{ cursor: "grab", touchAction: "none" }}
+      {/* ── Drag zone: handle pill + header row + tab bar ──────────────────────
+          Entire top region initiates sheet drag. touchAction:none blocks browser
+          scroll/pan so Motion captures every pointer event for drag tracking.   */}
+      <div
+        onPointerDown={startHeaderDrag}
+        style={{ cursor: "grab", touchAction: "none", userSelect: "none" }}
       >
-        <motion.div
-          className="rounded-full bg-border-strong"
-          style={{ width: 36, height: 5 }}
-          whileHover={{ scaleX: 1.3 }}
-          transition={{ duration: 0.15 }}
-        />
-      </motion.div>
+        {/* Pill */}
+        <div className="flex justify-center pt-3 pb-2">
+          <motion.div
+            className="rounded-full bg-border-strong"
+            style={{ width: 36, height: 5 }}
+            whileHover={{ scaleX: 1.3 }}
+            transition={{ duration: 0.15 }}
+          />
+        </div>
 
-      {/* ── Header ── */}
-      <div className="px-5 flex items-center justify-between mb-1">
-        <h2
-          className="text-[24px] font-black tracking-[0.72px] text-text-primary"
-          style={{ fontFamily: "var(--font-family-sans)" }}
+        {/* Header */}
+        <div className="px-5 flex items-center justify-between mb-1">
+          <h2
+            className="text-[24px] font-black tracking-[0.72px] text-text-primary"
+            style={{ fontFamily: "var(--font-family-sans)" }}
+          >
+            More services
+          </h2>
+          <Button variant="naked" size="sm" className="text-[16px] font-black normal-case">
+            More
+          </Button>
+        </div>
+
+        {/* ── Segmented tabs (Recents / Popular) ─────────────────────────────
+            Also detects horizontal swipe to switch tabs without tapping.       */}
+        <div
+          className="px-5 mb-3"
+          onPointerDown={onTabAreaPointerDown}
+          onPointerUp={onTabAreaPointerUp}
         >
-          More services
-        </h2>
-        <Button variant="naked" size="sm" className="text-[16px] font-black normal-case">
-          More
-        </Button>
-      </div>
-
-      {/* ── Segmented tabs (Recents / Popular) ── */}
-      <div className="px-5 mb-3">
-        <div className="flex rounded-[20px] p-1 bg-bg-page">
-          {(["recents", "popular"] as const).map((tab) => (
-            <motion.button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              whileTap={{ scale: 0.94 }}
-              transition={spring.snappy}
-              className="flex-1 flex items-center justify-center h-8 rounded-[16px] relative z-10"
-              style={{
-                fontFamily: "var(--font-family-sans)",
-                fontSize: 14,
-                fontWeight: 700,
-                letterSpacing: "0.02em",
-                color: activeTab === tab ? "var(--color-text-primary)" : "var(--color-text-secondary)",
-                WebkitTapHighlightColor: "transparent",
-              }}
-            >
-              {activeTab === tab && (
-                <motion.div
-                  layoutId="tabIndicator"
-                  className="absolute inset-0 rounded-[16px] bg-bg-surface"
-                  style={{ boxShadow: "0px 1px 2px rgba(0,0,0,0.08), 0px 2px 8px rgba(0,0,0,0.08)" }}
-                  transition={{ type: "spring", stiffness: 400, damping: 36 }}
-                />
-              )}
-              <span className="relative z-10 capitalize">{tab}</span>
-            </motion.button>
-          ))}
+          <div className="flex rounded-[20px] p-1 bg-bg-page">
+            {(["recents", "popular"] as const).map((tab) => (
+              <motion.button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                whileTap={{ scale: 0.94 }}
+                transition={spring.snappy}
+                className="flex-1 flex items-center justify-center h-8 rounded-[16px] relative z-10"
+                style={{
+                  fontFamily: "var(--font-family-sans)",
+                  fontSize: 14,
+                  fontWeight: 700,
+                  letterSpacing: "0.02em",
+                  color: activeTab === tab ? "var(--color-text-primary)" : "var(--color-text-secondary)",
+                  WebkitTapHighlightColor: "transparent",
+                }}
+              >
+                {activeTab === tab && (
+                  <motion.div
+                    layoutId="tabIndicator"
+                    className="absolute inset-0 rounded-[16px] bg-bg-surface"
+                    style={{ boxShadow: "0px 1px 2px rgba(0,0,0,0.08), 0px 2px 8px rgba(0,0,0,0.08)" }}
+                    transition={{ type: "spring", stiffness: 400, damping: 36 }}
+                  />
+                )}
+                <span className="relative z-10 capitalize">{tab}</span>
+              </motion.button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* ── Scrollable content ── */}
+      {/* ── Scrollable content ──────────────────────────────────────────────────
+          touchAction:pan-y lets the browser handle vertical scroll natively.
+          Horizontal swipes on content also switch tabs.                        */}
       <div
         ref={contentRef}
         className="overflow-y-auto"
-        style={{ height: SHEET_HEIGHT - 148, paddingBottom: 100 }}
+        style={{
+          height: SHEET_HEIGHT - 148,
+          paddingBottom: 100,
+          touchAction: "pan-y",
+        }}
+        onPointerDown={onTabAreaPointerDown}
+        onPointerUp={onTabAreaPointerUp}
       >
         <div className="px-5 mb-2">
           <span

@@ -1,7 +1,7 @@
 /**
- * Downloads GoPato icons from Figma MCP assets and saves them as static files.
+ * Downloads GoPato duck icon from Figma MCP assets and saves PWA icon files.
  *
- * Nav icons  → public/icons/nav-*.png  (used via CSS mask-image in BottomNav)
+ * Nav icons  → public/icons/nav-*.svg  (committed SVGs, no download needed)
  * Duck icon  → public/apple-touch-icon.png + icon-192.png + icon-512.png + favicon-32.png
  *              (yellow background composite for PWA / iOS home screen)
  *
@@ -11,37 +11,27 @@
  */
 
 import sharp from "sharp";
-import { mkdir } from "fs/promises";
+import { execSync } from "child_process";
+import { mkdtempSync, readFileSync, rmSync } from "fs";
+import { tmpdir } from "os";
+import { join } from "path";
 
-// ── Asset URLs (from figma-icons.ts — keep in sync) ─────────────────────────
-const DUCK_L1   = "https://www.figma.com/api/mcp/asset/82a44129-08c4-407f-b6c4-2aae954ed123";
-const DUCK_L2   = "https://www.figma.com/api/mcp/asset/b42fc228-9715-476a-b5d6-86b48205a142";
-const NAV_URLS  = {
-  "nav-home":   "https://www.figma.com/api/mcp/asset/d553c443-7688-41bf-9c96-988e65e4d28b",
-  "nav-chat":   "https://www.figma.com/api/mcp/asset/ec0f5285-d13a-4c03-beec-e05db71ec131",
-  "nav-orders": "https://www.figma.com/api/mcp/asset/54580c7e-9de8-4261-951c-a0c2b7948cc6",
-  "nav-avatar": "https://www.figma.com/api/mcp/asset/143aaa58-f711-4f65-bcd8-962de54cdf2d",
-};
+// ── Duck asset URLs (from figma-icons.ts — keep in sync) ────────────────────
+// Refreshed 2026-03-19. Expires after 7 days — re-run to refresh.
+const DUCK_L1 = "https://www.figma.com/api/mcp/asset/a5fbf58f-6a61-4137-95dd-bae4f1ea1fe7";
+const DUCK_L2 = "https://www.figma.com/api/mcp/asset/eb3fc0a8-15db-41b6-a4fd-3965079dc194";
 
-async function fetchBuf(url) {
-  const res = await fetch(url, { signal: AbortSignal.timeout(20_000) });
-  if (!res.ok) throw new Error(`HTTP ${res.status}: ${url}`);
-  return Buffer.from(await res.arrayBuffer());
-}
-
-// ── Download nav icons as-is (PNG) ──────────────────────────────────────────
-async function fetchNavIcons() {
-  await mkdir("public/icons", { recursive: true });
-  for (const [name, url] of Object.entries(NAV_URLS)) {
-    const buf = await fetchBuf(url);
-    await sharp(buf).png().toFile(`public/icons/${name}.png`);
-    console.log(`✓ public/icons/${name}.png`);
-  }
+function fetchBuf(url) {
+  const tmp = join(mkdtempSync(join(tmpdir(), "duck-")), "asset");
+  execSync(`curl -sfL "${url}" -o "${tmp}"`, { stdio: "pipe" });
+  const buf = readFileSync(tmp);
+  rmSync(tmp, { force: true });
+  return buf;
 }
 
 // ── Generate duck PWA icons (yellow bg + 2 duck layers composited) ───────────
 async function fetchDuckIcons() {
-  const [l1, l2] = await Promise.all([fetchBuf(DUCK_L1), fetchBuf(DUCK_L2)]);
+  const [l1, l2] = [fetchBuf(DUCK_L1), fetchBuf(DUCK_L2)];
 
   for (const size of [32, 180, 192, 512]) {
     const pad   = Math.round(size * 0.16);
@@ -70,12 +60,11 @@ async function fetchDuckIcons() {
 
 // ── Run ──────────────────────────────────────────────────────────────────────
 try {
-  await fetchNavIcons();
   await fetchDuckIcons();
-  console.log("\nAll icons fetched from Figma ✓");
+  console.log("\nDuck icons fetched from Figma ✓");
 } catch (err) {
   console.warn(`\n⚠ fetch-icons failed (Figma URLs may have expired): ${err.message}`);
-  console.warn("  Run `npm run fetch-icons` after refreshing URLs in figma-icons.ts");
+  console.warn("  Re-fetch URLs via Figma MCP and update src/lib/figma-icons.ts");
   // Don't fail the build — static fallbacks already exist in /public/
   process.exit(0);
 }

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 24" width="20" height="24">
+  <!-- Document with folded top-right corner -->
+  <path fill="black" d="M0 2C0 0.9 0.9 0 2 0H11.5L20 8.5V22C20 23.1 19.1 24 18 24H2C0.9 24 0 23.1 0 22V2Z"/>
+  <!-- Fold flap -->
+  <path fill="black" d="M11.5 0L20 8.5H11.5V0Z"/>
+</svg>
