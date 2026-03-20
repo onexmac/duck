@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador — Adelante</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  min-height: 100vh;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* ── Phone shell ─────────────────────────────── */
+.phone {
+  width: 402px;
+  min-height: 874px;
+  background: #000;
+  border-radius: 40px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Top white card ──────────────────────────── */
+.card-top {
+  background: #fff;
+  border-radius: 40px;
+  margin: 23px 14px 0;
+  height: 414px;
+  padding: 28px 24px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.chart-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #000;
+  letter-spacing: 0.4px;
+  margin-bottom: 14px;
+}
+
+/* Chart */
+.chart-wrap {
+  position: relative;
+  height: 180px;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.bar-col {
+  flex: 1;
+  height: 180px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.bar-bg {
+  position: absolute;
+  bottom: 0;
+  width: 16px;
+  height: 180px;
+  background: #000;
+  border-radius: 20px;
+}
+
+.bar-val {
+  position: absolute;
+  bottom: 0;
+  width: 16px;
+  border-radius: 20px;
+  transition: height .45s cubic-bezier(.4,0,.2,1), background-color .3s;
+}
+
+.chart-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Legend chip */
+.legend {
+  position: absolute;
+  bottom: 56px;
+  left: 14px;
+  background: #000;
+  border-radius: 20px;
+  padding: 12px 20px;
+}
+
+.legend p {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  line-height: 24px;
+}
+
+.blue-text  { color: #1481db; }
+.green-text { color: #add010; }
+
+/* ── Bottom dark card ────────────────────────── */
+.card-bottom {
+  background: rgba(93,99,108,.40);
+  border-radius: 40px;
+  margin: 14px 14px 14px;
+  flex: 1;
+  padding: 22px 20px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.slider-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.4px;
+  margin-bottom: 8px;
+}
+
+.slider-section { margin-bottom: 18px; }
+
+.slider-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+/* Slider track container */
+.slider-track {
+  flex: 1;
+  height: 80px;
+  background: #232323;
+  border-radius: 20px;
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+/* Active fill bar */
+.track-fill {
+  position: absolute;
+  left: 0;
+  top: calc(50% - 2px);
+  height: 4px;
+  background: #add010;
+  border-radius: 2px;
+  pointer-events: none;
+  transition: width .15s;
+}
+
+/* Tick dots */
+.tick {
+  position: absolute;
+  background: #555;
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  transition: background .2s;
+}
+
+/* Draggable value box */
+.drag-box {
+  position: absolute;
+  top: 0;
+  width: 60px;
+  height: 80px;
+  background: #add010;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 600;
+  color: #000;
+  pointer-events: none;
+  transition: left .15s;
+  z-index: 2;
+}
+
+/* Invisible range input over track */
+.range-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+/* Toggle (stepper) */
+.toggle-box {
+  width: 60px;
+  height: 80px;
+  background: #add010;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  flex-shrink: 0;
+}
+
+.step-btn {
+  background: none;
+  border: none;
+  color: #000;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  padding: 4px 0;
+}
+.step-btn:active { opacity: .5; transform: scale(.9); }
+
+.home-icon {
+  font-size: 15px;
+  color: #000;
+  opacity: .7;
+  cursor: pointer;
+  user-select: none;
+}
+.home-icon:active { opacity: .4; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- ── TOP: Wave chart ────────────────────── -->
+  <div class="card-top">
+    <p class="chart-title">OLA DE PRODUCCIÓN</p>
+
+    <div class="chart-wrap" id="chartWrap">
+      <!-- bars injected by JS -->
+      <svg class="chart-svg" viewBox="0 0 316 180" preserveAspectRatio="none">
+        <line x1="0" y1="180" x2="316" y2="0"
+          stroke="#1481db" stroke-width="16" stroke-linecap="round" opacity="0.9"/>
+      </svg>
+    </div>
+
+    <div class="legend">
+      <p class="blue-text">CRONOLÓGICO</p>
+      <p class="green-text">POR COSTO</p>
+    </div>
+  </div>
+
+  <!-- ── BOTTOM: Sliders ───────────────────── -->
+  <div class="card-bottom">
+
+    <!-- ACABADOS -->
+    <div class="slider-section">
+      <p class="slider-label">ACABADOS</p>
+      <div class="slider-row">
+        <div class="slider-track" id="acabadosTrack">
+          <div class="track-fill" id="acabadosFill"></div>
+          <div class="drag-box"   id="acabadosBox">4</div>
+          <input type="range" class="range-input" id="acabadosRange"
+                 min="1" max="8" value="4" step="1">
+        </div>
+        <div class="toggle-box">
+          <button class="step-btn" id="acabadosUp">▲</button>
+          <span   class="home-icon" data-id="acabados" data-default="4">⌂</span>
+          <button class="step-btn" id="acabadosDown">▼</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MUROS -->
+    <div class="slider-section">
+      <p class="slider-label">MUROS</p>
+      <div class="slider-row">
+        <div class="slider-track" id="murosTrack">
+          <div class="track-fill" id="murosFill"></div>
+          <div class="drag-box"   id="murosBox">8</div>
+          <input type="range" class="range-input" id="murosRange"
+                 min="1" max="16" value="8" step="1">
+        </div>
+        <div class="toggle-box">
+          <button class="step-btn" id="murosUp">▲</button>
+          <span   class="home-icon" data-id="muros" data-default="8">⌂</span>
+          <button class="step-btn" id="murosDown">▼</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ── Constants ─────────────────────────────────── */
+const N      = 16;
+const MAX_H  = 180;
+const GREEN  = '#add010';
+const RED    = '#c96c6c';
+const BOX_W  = 60;
+
+/* ── Gaussian ──────────────────────────────────── */
+function gauss(t, mu, sigma) {
+  return Math.exp(-0.5 * ((t - mu) / sigma) ** 2);
+}
+
+/* ── Bimodal production wave ───────────────────── */
+function computeWave(muros, acabados) {
+  const ampM = muros    / 16;
+  const ampA = acabados / 8;
+  const muM  = 1 + N * 0.30;          // peak ≈ week 5.8
+  const muA  = N * 0.78;              // peak ≈ week 12.5
+  const sigM = 2.0 + muros    * 0.22;
+  const sigA = 2.0 + acabados * 0.35;
+
+  const raw = Array.from({ length: N }, (_, i) => {
+    const t = i + 1;
+    return ampM * gauss(t, muM, sigM) + ampA * gauss(t, muA, sigA);
+  });
+
+  const peak = Math.max(...raw);
+  return raw.map(v => (v / peak) * MAX_H);
+}
+
+/* ── Bar color: above/below linear reference ────── */
+function barColor(h, i) {
+  const ref = ((i + 1) / N) * MAX_H;
+  return h >= ref ? GREEN : RED;
+}
+
+/* ── Build 16 bar columns ──────────────────────── */
+function buildBars() {
+  const wrap = document.getElementById('chartWrap');
+  const svg  = wrap.querySelector('svg');
+
+  for (let i = 0; i < N; i++) {
+    const col = document.createElement('div');
+    col.className = 'bar-col';
+
+    const bg  = document.createElement('div');
+    bg.className = 'bar-bg';
+
+    const val = document.createElement('div');
+    val.className = 'bar-val';
+    val.id = 'b' + i;
+
+    col.appendChild(bg);
+    col.appendChild(val);
+    wrap.insertBefore(col, svg);
+  }
+}
+
+/* ── Render wave bars ──────────────────────────── */
+function renderWave() {
+  const muros    = parseInt(document.getElementById('murosRange').value);
+  const acabados = parseInt(document.getElementById('acabadosRange').value);
+  const heights  = computeWave(muros, acabados);
+
+  for (let i = 0; i < N; i++) {
+    const el = document.getElementById('b' + i);
+    el.style.height          = heights[i] + 'px';
+    el.style.backgroundColor = barColor(heights[i], i);
+  }
+}
+
+/* ── Add tick dots to a track ──────────────────── */
+function addTicks(trackEl) {
+  // 5 ticks at ~10, 27, 50, 73, 90% of track width
+  [
+    { pct: 0.10, lg: true  },
+    { pct: 0.27, lg: false },
+    { pct: 0.50, lg: false },
+    { pct: 0.73, lg: false },
+    { pct: 0.90, lg: true  },
+  ].forEach(({ pct, lg }) => {
+    const d = document.createElement('div');
+    const s = lg ? 12 : 8;
+    d.className = 'tick';
+    d.style.cssText = `width:${s}px;height:${s}px;left:calc(${pct*100}% - ${s/2}px)`;
+    trackEl.appendChild(d);
+  });
+}
+
+/* ── Update slider visual position ─────────────── */
+function updateSliderUI(id) {
+  const range  = document.getElementById(id + 'Range');
+  const box    = document.getElementById(id + 'Box');
+  const fill   = document.getElementById(id + 'Fill');
+  const track  = document.getElementById(id + 'Track');
+  const val    = parseInt(range.value);
+  const min    = parseInt(range.min);
+  const max    = parseInt(range.max);
+  const pct    = (val - min) / (max - min);
+  const travel = track.clientWidth - BOX_W;
+  const left   = pct * travel;
+
+  box.textContent = val;
+  box.style.left  = left + 'px';
+  fill.style.width = (left + BOX_W / 2) + 'px';
+}
+
+/* ── Sync all ──────────────────────────────────── */
+function syncAll() {
+  updateSliderUI('muros');
+  updateSliderUI('acabados');
+  renderWave();
+}
+
+/* ── Wire controls ─────────────────────────────── */
+function wire(id, defaultVal) {
+  document.getElementById(id + 'Range')
+    .addEventListener('input', syncAll);
+
+  document.getElementById(id + 'Up').addEventListener('click', () => {
+    const r = document.getElementById(id + 'Range');
+    r.value = Math.min(+r.max, +r.value + 1);
+    syncAll();
+  });
+
+  document.getElementById(id + 'Down').addEventListener('click', () => {
+    const r = document.getElementById(id + 'Range');
+    r.value = Math.max(+r.min, +r.value - 1);
+    syncAll();
+  });
+}
+
+// Home icons → reset to default
+document.querySelectorAll('.home-icon').forEach(el => {
+  el.addEventListener('click', () => {
+    const r = document.getElementById(el.dataset.id + 'Range');
+    r.value = el.dataset.default;
+    syncAll();
+  });
+});
+
+/* ── Init ──────────────────────────────────────── */
+buildBars();
+wire('muros',    8);
+wire('acabados', 4);
+
+requestAnimationFrame(() => {
+  addTicks(document.getElementById('murosTrack'));
+  addTicks(document.getElementById('acabadosTrack'));
+  syncAll();
+});
+</script>
+</body>
+</html>
